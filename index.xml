@@ -30,5 +30,14 @@
 二、Hive的架构  用户接口：包括CLI、JDBC等方式（也就是客户端） 元数据MetaStore：Hive通常将元数据信息保存在传统关系型数据库中，如MySQL，但默认是放在Derby数据库中（这种数据库不支持多用户同时访问）。元数据信息包括：库名、表名、表所属的库名、表的列名/分区字段，表的属性（是否为外部表）、表中数据所在的HDFS目录等信息。【由此可见，元数据的重要性不言而喻。】 Driver：包括：解释器、编译器、优化器、执行器。Hive SQL语句从词法分析、语法分析、编译、优化以及查询计划生成，查询计划存储在HDFS上，MapReduce负责调用执行；  解释器：将用户输入的Hive SQL转化成抽象语法树（AST） 编译器：将AST编译成逻辑执行计划 优化器：将逻辑执行计划进行优化 执行器：优化后的逻辑执行计划转换成可以运行的物理执行计划    三、Hive中数据组织方式 3.</description>
     </item>
     
+    <item>
+      <title>About</title>
+      <link>http://niuniu.langchao2020.tech/about/</link>
+      <pubDate>Thu, 01 Oct 2020 00:52:18 +0800</pubDate>
+      
+      <guid>http://niuniu.langchao2020.tech/about/</guid>
+      <description>人的一生中，真正属于自己的财富只有两个：自己的“才华”和自己的“时间”。通常才华越来越多而时间越来越少。人生就是用时间换取才华。</description>
+    </item>
+    
   </channel>
 </rss>
