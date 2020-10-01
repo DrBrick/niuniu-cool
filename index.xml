@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ฅ՞•ﻌ•՞ฅ要抱抱</title>
+    <link>http://niuniu.langchao2020.tech/</link>
+    <description>Recent content on ฅ՞•ﻌ•՞ฅ要抱抱</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
+    <lastBuildDate>Thu, 01 Oct 2020 17:08:58 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hive认识我的第一天</title>
+      <link>http://niuniu.langchao2020.tech/posts/hive-meeting/</link>
+      <pubDate>Thu, 01 Oct 2020 17:08:58 +0800</pubDate>
+      
+      <guid>http://niuniu.langchao2020.tech/posts/hive-meeting/</guid>
+      <description>一、Hive简介 1.1 什么是Hive Hive官网给出的定义是：“The Apache Hive ™ data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.”
+我粗糙的理解是，Hive是一个类似Hadoop（集群）的客户端，所谓客户端在手天下我有。就好比你拿到了电视的遥控器，想怎么操作电视就怎么操作电视，比如换台。实际上Hive使用的是类似SQL的语句去操作（离线数据分析、数据管理&amp;hellip;）HDFS上的数据，本质是将SQL语句转化成MapReduce作业。
+1.2 为什么要使用Hive Hive的本质是将SQL转化成MapReduce作业，那么直接使用MapReduce不就好了，何必转一个弯呢？因为Hive更方便啊，它是遥控器！MapReduce编程模型还是有一定门槛的，代码量多而且只有map和reduce过程，实现复杂的计算逻辑则难度相当之大。
+而，Hive能够使得不会编程的数据开发人员也具备操作分析HDFS上数据的能力，只要你SQL写的好、写的妙。
+1.3 Hive有什么特点 先说缺点，这样记得更牢固。
+首先，慢，而且不是一般的慢。当然这是对少量数据而言，比如查询十多行的数据需要100秒左右的时间，这哪能忍。
+其次，Hive不太支持记录级别的增删改操作。注意是不太支持，你要是真想用还是可以用的，只是要选择对应的Hive版本。
+最后，Hive不支持事务。它主要是用来做OLAP（联机分析处理）的，而传统数据库是用来做OLTP（联机事务处理）的，这也是它俩的本质区别之一。
+优点，我是记不住，正经人谁记某个东西的优点啊。
+首先，延展性好。传统SQL能做的它也能做，传统SQL不能做的它还是能做。比如Hive支持自定义函数UDF，开发人员可以根据自己的需求来实现自定义函数。
+其次，拥有HDFS的优点。HDFS的优点也算是它的优点，比如横向扩展。比如加机器的时候是不会对Hive造成影响的，连重启服务也不需要。
+最后，良好的容错性。这一点是硬凑的，我理解不到这一层。
+稍微总结一下：Hive只适合用来做海量数据离线统计分析，也是数据仓库实现常用的技术之一。
+二、Hive的架构  用户接口：包括CLI、JDBC等方式（也就是客户端） 元数据MetaStore：Hive通常将元数据信息保存在传统关系型数据库中，如MySQL，但默认是放在Derby数据库中（这种数据库不支持多用户同时访问）。元数据信息包括：库名、表名、表所属的库名、表的列名/分区字段，表的属性（是否为外部表）、表中数据所在的HDFS目录等信息。【由此可见，元数据的重要性不言而喻。】 Driver：包括：解释器、编译器、优化器、执行器。Hive SQL语句从词法分析、语法分析、编译、优化以及查询计划生成，查询计划存储在HDFS上，MapReduce负责调用执行；  解释器：将用户输入的Hive SQL转化成抽象语法树（AST） 编译器：将AST编译成逻辑执行计划 优化器：将逻辑执行计划进行优化 执行器：优化后的逻辑执行计划转换成可以运行的物理执行计划    三、Hive中数据组织方式 3.</description>
+    </item>
+    
+  </channel>
+</rss>

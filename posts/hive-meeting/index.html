@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Hive认识我的第一天 :: ฅ՞•ﻌ•՞ฅ要抱抱</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一、Hive简介 1.1 什么是Hive Hive官网给出的定义是：“The Apache Hive ™ data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.”
+我粗糙的理解是，Hive是一个类似Hadoop（集群）的客户端，所谓客户端在手天下我有。就好比你拿到了电视的遥控器，想怎么操作电视就怎么操作电视，比如换台。实际上Hive使用的是类似SQL的语句去操作（离线数据分析、数据管理&amp;hellip;）HDFS上的数据，本质是将SQL语句转化成MapReduce作业。
+1.2 为什么要使用Hive Hive的本质是将SQL转化成MapReduce作业，那么直接使用MapReduce不就好了，何必转一个弯呢？因为Hive更方便啊，它是遥控器！MapReduce编程模型还是有一定门槛的，代码量多而且只有map和reduce过程，实现复杂的计算逻辑则难度相当之大。
+而，Hive能够使得不会编程的数据开发人员也具备操作分析HDFS上数据的能力，只要你SQL写的好、写的妙。
+1.3 Hive有什么特点 先说缺点，这样记得更牢固。
+首先，慢，而且不是一般的慢。当然这是对少量数据而言，比如查询十多行的数据需要100秒左右的时间，这哪能忍。
+其次，Hive不太支持记录级别的增删改操作。注意是不太支持，你要是真想用还是可以用的，只是要选择对应的Hive版本。
+最后，Hive不支持事务。它主要是用来做OLAP（联机分析处理）的，而传统数据库是用来做OLTP（联机事务处理）的，这也是它俩的本质区别之一。
+优点，我是记不住，正经人谁记某个东西的优点啊。
+首先，延展性好。传统SQL能做的它也能做，传统SQL不能做的它还是能做。比如Hive支持自定义函数UDF，开发人员可以根据自己的需求来实现自定义函数。
+其次，拥有HDFS的优点。HDFS的优点也算是它的优点，比如横向扩展。比如加机器的时候是不会对Hive造成影响的，连重启服务也不需要。
+最后，良好的容错性。这一点是硬凑的，我理解不到这一层。
+稍微总结一下：Hive只适合用来做海量数据离线统计分析，也是数据仓库实现常用的技术之一。
+二、Hive的架构  用户接口：包括CLI、JDBC等方式（也就是客户端） 元数据MetaStore：Hive通常将元数据信息保存在传统关系型数据库中，如MySQL，但默认是放在Derby数据库中（这种数据库不支持多用户同时访问）。元数据信息包括：库名、表名、表所属的库名、表的列名/分区字段，表的属性（是否为外部表）、表中数据所在的HDFS目录等信息。【由此可见，元数据的重要性不言而喻。】 Driver：包括：解释器、编译器、优化器、执行器。Hive SQL语句从词法分析、语法分析、编译、优化以及查询计划生成，查询计划存储在HDFS上，MapReduce负责调用执行；  解释器：将用户输入的Hive SQL转化成抽象语法树（AST） 编译器：将AST编译成逻辑执行计划 优化器：将逻辑执行计划进行优化 执行器：优化后的逻辑执行计划转换成可以运行的物理执行计划    三、Hive中数据组织方式 3." />
+<meta name="keywords" content="Hive, Hive教程, niuniu" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="http://niuniu.langchao2020.tech/posts/hive-meeting/" />
+
+
+
+
+<link rel="stylesheet" href="http://niuniu.langchao2020.tech/assets/style.css">
+
+  <link rel="stylesheet" href="http://niuniu.langchao2020.tech/assets/green.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://niuniu.langchao2020.tech/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="http://niuniu.langchao2020.tech/img/favicon/green.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Hive认识我的第一天 :: ฅ՞•ﻌ•՞ฅ要抱抱">
+<meta property="og:description" content="Hive是一个类似Hadoop（集群）的`客户端`，所谓客户端在手天下我有。" />
+<meta property="og:url" content="http://niuniu.langchao2020.tech/posts/hive-meeting/" />
+<meta property="og:site_name" content="Hive认识我的第一天" />
+
+  
+    <meta property="og:image" content="http://niuniu.langchao2020.tech/img/favicon/green.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+
+  <meta property="article:published_time" content="2020-10-01 17:08:58 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="green">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    牛牛ฅ^•ﻌ•^ฅ
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/">Home</a></li>
+      
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="http://niuniu.langchao2020.tech/posts/hive-meeting/">Hive认识我的第一天</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-01 
+      </span>
+    
+    
+    <span class="post-author">:: niuniu</span>
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="http://niuniu.langchao2020.tech/tags/hive/">Hive</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <ul>
+<li>
+<h2 id="一hive简介">一、Hive简介<a href="#一hive简介" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="11-什么是hive">1.1 什么是Hive<a href="#11-什么是hive" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Hive官网给出的定义是：“The Apache Hive ™ data warehouse software facilitates reading, writing,  and managing large datasets residing in distributed storage using SQL.   Structure can be projected onto data already in storage.  A command line tool and JDBC driver are provided to connect users to Hive.”</p>
+<p>我粗糙的理解是，Hive是一个类似Hadoop（集群）的<code>客户端</code>，所谓客户端在手天下我有。就好比你拿到了电视的遥控器，想怎么操作电视就怎么操作电视，比如换台。实际上Hive使用的是类似SQL的语句去操作（离线数据分析、数据管理&hellip;）HDFS上的数据，本质是将SQL语句转化成MapReduce作业。</p>
+<h3 id="12-为什么要使用hive">1.2 为什么要使用Hive<a href="#12-为什么要使用hive" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Hive的本质是将SQL转化成MapReduce作业，那么直接使用MapReduce不就好了，何必转一个弯呢？因为Hive更方便啊，它是遥控器！MapReduce编程模型还是有一定门槛的，代码量多而且只有map和reduce过程，实现复杂的计算逻辑则难度相当之大。</p>
+<p>而，Hive能够使得不会编程的数据开发人员也具备操作分析HDFS上数据的能力，只要你SQL写的好、写的妙。</p>
+<h3 id="13-hive有什么特点">1.3 Hive有什么特点<a href="#13-hive有什么特点" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>先说缺点，这样记得更牢固。</p>
+<p><strong>首先，慢，而且不是一般的慢</strong>。当然这是对少量数据而言，比如查询十多行的数据需要100秒左右的时间，这哪能忍。</p>
+<p><strong>其次，Hive不太支持记录级别的增删改操作</strong>。注意是不太支持，你要是真想用还是可以用的，只是要选择对应的Hive版本。</p>
+<p><strong>最后，Hive不支持事务</strong>。它主要是用来做OLAP（联机分析处理）的，而传统数据库是用来做OLTP（联机事务处理）的，这也是它俩的本质区别之一。</p>
+<p>优点，我是记不住，正经人谁记某个东西的优点啊。</p>
+<p>首先，延展性好。传统SQL能做的它也能做，传统SQL不能做的它还是能做。比如Hive支持自定义函数UDF，开发人员可以根据自己的需求来实现自定义函数。</p>
+<p>其次，拥有HDFS的优点。HDFS的优点也算是它的优点，比如<code>横向扩展</code>。比如加机器的时候是不会对Hive造成影响的，连重启服务也不需要。</p>
+<p>最后，良好的容错性。这一点是硬凑的，我理解不到这一层。</p>
+<p>稍微总结一下：Hive只适合用来做海量数据离线统计分析，也是数据仓库实现常用的技术之一。</p>
+<h2 id="二hive的架构">二、Hive的架构<a href="#二hive的架构" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p><img src="https://camo.githubusercontent.com/759c92fc0fbc480fb9d41684c5a314f89190d31b/68747470733a2f2f67697465652e636f6d2f68656962616979696e672f426967446174612d4e6f7465732f7261772f6d61737465722f70696374757265732f68697665e4bd93e7b3bbe69eb6e69e842e706e67" alt="img"></p>
+<ul>
+<li>用户接口：包括CLI、JDBC等方式（也就是客户端）</li>
+<li><strong>元数据MetaStore</strong>：Hive通常将元数据信息保存在传统关系型数据库中，如MySQL，但默认是放在Derby数据库中（这种数据库不支持多用户同时访问）。元数据信息包括：库名、表名、表所属的库名、表的列名/分区字段，表的属性（是否为外部表）、表中数据所在的HDFS目录等信息。【由此可见，元数据的重要性不言而喻。】</li>
+<li>Driver：包括：解释器、编译器、优化器、执行器。Hive SQL语句从词法分析、语法分析、编译、优化以及查询计划生成，查询计划存储在HDFS上，MapReduce负责调用执行；
+<ul>
+<li>解释器：将用户输入的Hive SQL转化成抽象语法树（AST）</li>
+<li>编译器：将AST编译成逻辑执行计划</li>
+<li>优化器：将逻辑执行计划进行优化</li>
+<li>执行器：优化后的逻辑执行计划转换成可以运行的物理执行计划</li>
+</ul>
+</li>
+</ul>
+<h2 id="三hive中数据组织方式">三、Hive中数据组织方式<a href="#三hive中数据组织方式" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="31-数据组织方式概览">3.1 数据组织方式概览<a href="#31-数据组织方式概览" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Hive的存储结构包括<strong>数据库、表、视图、分区、表数据</strong>等。库、表、分区在HDFS上体现的是一个<code>目录</code>,表数据对应的是<code>目录下的文件</code>。</p>
+<p>Hive实际并不存储数据，数据都是存放在HDFS上，因此也没有专门的数据存储格式。Hive是<code>读模式</code>，可支持TextFile、SequenceFile、RCFile或者自定义格式。</p>
+<p>Hive支持的存储格式如下表所示，其中，<strong>ORC 和 Parquet 的综合性能突出</strong>，使用较为广泛，推荐使用这两种格式。在创建表的时候可指定其存储格式，使用<code>STORED AS</code> 参数指定。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">格式</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>TextFile</strong></td>
+<td style="text-align:left">存储为纯文本文件。 这是 Hive 默认的文件存储格式。这种存储方式数据不做压缩，磁盘开销大，数据解析开销大。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>SequenceFile</strong></td>
+<td style="text-align:left">SequenceFile 是 Hadoop API  提供的一种二进制文件，它将数据以&lt;key,value&gt;的形式序列化到文件中。这种二进制文件内部使用 Hadoop 的标准的  Writable 接口实现序列化和反序列化。它与 Hadoop API 中的 MapFile 是互相兼容的。Hive 中的  SequenceFile 继承自 Hadoop API 的 SequenceFile，不过它的 key 为空，使用 value  存放实际的值，这样是为了避免 MR 在运行 map 阶段进行额外的排序操作。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>RCFile</strong></td>
+<td style="text-align:left">RCFile 文件格式是 FaceBook 开源的一种 Hive 的文件存储格式，首先将表分为几个行组，对每个行组内的数据按列存储，每一列的数据都是分开存储。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>ORC Files</strong></td>
+<td style="text-align:left">ORC 是在一定程度上扩展了 RCFile，是对 RCFile 的优化。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Avro Files</strong></td>
+<td style="text-align:left">Avro 是一个数据序列化系统，设计用于支持大批量数据交换的应用。它的主要特点有：支持二进制序列化方式，可以便捷，快速地处理大量数据；动态语言友好，Avro 提供的机制使动态语言可以方便地处理 Avro 数据。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Parquet</strong></td>
+<td style="text-align:left">Parquet 是基于 Dremel 的数据模型和算法实现的，面向分析型业务的列式存储格式。它通过按列进行高效压缩和特殊的编码技术，从而在降低存储空间的同时提高了 IO 效率。</td>
+</tr>
+</tbody>
+</table>
+<p>Hive的列分隔符默认是不常见字符Ctrl + A，\x01；</p>
+<p>Hive的行分隔符默认是换行符 &lsquo;\n&rsquo; ；</p>
+<p>Hive中包含以下数据类型：</p>
+<ul>
+<li>database</li>
+<li>table：在HDFS上体现的是一个目录</li>
+<li>external table：与table类似，但是其数据存放位置可以指定任意HDFS目录路径</li>
+<li>partition：体现为HDFS上table目录的子目录</li>
+<li>bucket：在 HDFS 中表现为<code>同一个表目录或者分区目录下</code>根据某个字段的值进行 hash 散 列之后的<code>多个文件</code></li>
+<li>view：与传统数据库类似，只读，基于表创建</li>
+</ul>
+<h3 id="32-内外部表和分桶表">3.2 内外部表和分桶表<a href="#32-内外部表和分桶表" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p><strong>内部表和外部表的区别：</strong></p>
+<p>Hive默认创建的表都是内部表，除非加<code>external</code>关键字修饰变成外部表。</p>
+<p>当删除内部表时，表中数据和表元数据都会被删掉；</p>
+<p>当删除外部表时，只删除表元数据，不删除表中数据；</p>
+<p><strong>内部表外部表使用选择：</strong></p>
+<p>大多数情况下它们的区别不明显，如果数据的所有处理都在Hive中进行，则倾向于选择内部表。但如果是Hive和其它工具要对相同的数据集进行处理，则外部表更合适。</p>
+<ul>
+<li>每天采集的网站日志和埋点日志数据，在存储的时候建议使用外部表，因为日志数据是采集程序实时采集进来的，一旦被误删，恢复起来非常麻烦。而且<strong>外部表方便数据的共享</strong>。</li>
+<li>抽取过来的业务数据，其实用外部表或者内部表问题都不大，就算被误删，恢复起来也是很快的，如果需要对数据内容和元数据<strong>进行紧凑的管理</strong>, 那还是建议使用内部表。</li>
+<li>在做统计分析时候用到的<strong>中间表，结果表建议使用内部表</strong>，因为这些数据不需要共享。并且很多时候结果分区表只需要保留最近3天的数据，用外部表的时候删除分区时无法删除数据。</li>
+</ul>
+<h2 id="四如何使用hive">四、如何使用Hive<a href="#四如何使用hive" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="41-科普sql中的几个概念">4.1 科普SQL中的几个概念<a href="#41-科普sql中的几个概念" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>SQL：Structure Query Language，即<code>结构化查询</code>语言；</p>
+<p>SQL共分为四大类：</p>
+<ol>
+<li>数据定义语言 DDL（Data Definition Language）</li>
+<li>数据操纵语言 DML（Data Manipulation Language）</li>
+<li>数据查询语言 DQL（Data Query Language）</li>
+<li>数据控制语言 DCL（Data Control Language）</li>
+</ol>
+<p>其中还有一个事务控制语言 TCL （Transaction Control Language）。下面一张图很好的展示了各个层面的操作SQL命令；</p>
+<p><img src="https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190826175059/Types-of-SQL-Commands.jpg" alt="图片来源网络"></p>
+<p>因此，可以简单的概括一下DDL、DML、DQL、DCL。</p>
+<ol>
+<li>
+<p>DDL：用来创建<code>数据库中的各种对象</code>——表、视图、索引、同义词、聚簇等</p>
+<pre><code>CREATE TABLE/VIEW/INDEX/SYN/CLUSTER
+# 值得注意的是，DDL操作是隐性提交的，不能Rollback；
+</code></pre></li>
+<li>
+<p>DML：最常见的增删改</p>
+<pre><code>INSERT/UPDATE/DELETE
+</code></pre></li>
+<li>
+<p>DQL：基本结构是由SELECT子句，FROM子句，WHERE子句组成的查询块</p>
+<pre><code>SELECT &lt;字段名表&gt;
+FROM &lt;表或视图名&gt;
+WHERE &lt;查询条件&gt;
+</code></pre></li>
+<li>
+<p>DCL：<strong>用来授予或者回收访问数据库的权限，并控制数据库操纵事务发生的时间及效果，对数据库实时监视等。</strong></p>
+<pre><code>GRANT：授权
+ROLLBACK [WORK] TO [SAVEPOINT]：回退到某一点
+ROLLBACK：回滚，回滚命令使数据库状态回到上次最后提交的状态
+</code></pre></li>
+</ol>
+<h3 id="42-继续科普一下hive中的数据类型">4.2 继续科普一下Hive中的数据类型<a href="#42-继续科普一下hive中的数据类型" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>传统关系型数据库支持的基本数据类型Hive基本都支持，比如TINYINT、SMALLINT、INT、BIGINT、FLOAT、DOUBLE、BOOLEAN、STRING、DATE。另外，Hive还支持另外三种复杂的类型：<code>ARRAY</code>、<code>MAP</code>、<code>STRUCT</code>。</p>
+<h3 id="43-hive中库表的相关操作">4.3 Hive中库表的相关操作<a href="#43-hive中库表的相关操作" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>库相关的操作如下面所示：</p>
+<table>
+<thead>
+<tr>
+<th>描述</th>
+<th>命令</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>创建一个新的数据库myhive</td>
+<td>create database myhive;</td>
+<td></td>
+</tr>
+<tr>
+<td>使用新的数据库myhive</td>
+<td>use myhive;</td>
+<td></td>
+</tr>
+<tr>
+<td>查看当前正在使用的数据库</td>
+<td>select current_database();</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>表相关操作表格所示：</p>
+<ol>
+<li>
+<p>新建一张student表</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">table</span> student(
+    id int,
+  name string,
+    sex string,
+  age int,
+    department string
+) <span style="color:#66d9ef">row</span> format delimited fields terminated <span style="color:#66d9ef">by</span> <span style="color:#e6db74">&#34;,&#34;</span>;
+</code></pre></div></li>
+<li>
+<p>从本地往表中加载数据</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">load</span> <span style="color:#66d9ef">data</span> <span style="color:#66d9ef">local</span> inpath <span style="color:#e6db74">&#34;/data/soft/mydata/student.txt&#34;</span> <span style="color:#66d9ef">into</span> <span style="color:#66d9ef">table</span> student;
+</code></pre></div></li>
+<li>
+<p>查看表结构信息</p>
+</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">  <span style="color:#f92672">#</span> <span style="color:#960050;background-color:#1e0010">三种方式，其中</span>formatted展示的信息最全
+<span style="color:#66d9ef">desc</span> student;
+  <span style="color:#66d9ef">desc</span> extended student;
+<span style="color:#66d9ef">desc</span> formatted student;
+</code></pre></div><h3 id="44-使用beeline">4.4 使用Beeline<a href="#44-使用beeline" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Hive 内置了 HiveServer 和 HiveServer2 服务，两者都允许客户端使用多种编程语言进行连接，但是  HiveServer 不能处理多个客户端的并发请求，因此产生了  HiveServer2。HiveServer2（HS2）允许远程客户端可以使用各种编程语言向 Hive  提交请求并检索结果，支持多客户端并发访问和身份验证。HS2 是由多个服务组成的单个进程，其包括基于 Thrift 的 Hive 服务（TCP 或 HTTP）和用于 Web UI 的 Jetty Web 服务。</p>
+<p>HiveServer2 拥有自己的 CLI 工具——Beeline。Beeline 是一个基于 SQLLine 的 JDBC  客户端。由于目前 HiveServer2 是 Hive 开发维护的重点，所以官方更加推荐使用 Beeline 而不是 Hive  CLI。以下主要讲解 Beeline 的配置方式。</p>
+<ul>
+<li>
+<p>首先启动hiverser2：nohup hiveserver2 &amp;</p>
+</li>
+<li>
+<p>然后使用beeline：beeline -u jdbc:hive2://hadoop200m:10000 -n root</p>
+</li>
+</ul>
+</li>
+</ul>
+
+      </div></div>
+
+  
+  
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>Copyright © 2020 牛牛ฅ^•ﻌ•^ฅ ❤️</span>
+    
+        
+      </div>
+  </div>
+</footer>
+
+<script src="http://niuniu.langchao2020.tech/assets/main.js"></script>
+<script src="http://niuniu.langchao2020.tech/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
