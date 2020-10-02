@@ -7,7 +7,31 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Thu, 01 Oct 2020 17:08:58 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 02 Oct 2020 19:10:59 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>浅谈SQL语句的执行顺序</title>
+      <link>http://niuniu.langchao2020.tech/posts/sql-execution-sequence/</link>
+      <pubDate>Fri, 02 Oct 2020 19:10:59 +0800</pubDate>
+      
+      <guid>http://niuniu.langchao2020.tech/posts/sql-execution-sequence/</guid>
+      <description>浅谈SQL语句的执行顺序 一、SQL语句执行顺序解析 SQL语句和编程语言的语句有很大的不同，有一点原因在于SQL并不一定是按照你写的SQL语句顺序执行的。因此在写SQL语句的时候很容易出现问题，最主要的问题还是记不住SQL命令，死记硬背效果好像也不是很好。
+需要知道的是，在SQL语句执行的过程中，都会产生一个虚拟表，用来保存SQL语句的执行结果。这些虚拟表对用户来说是透明的，只有最后一步生成的虚拟表才会返回给用户。如果没有再查询中指定某一子句，则将跳过相应的步骤。下面先给出SQL语句的执行顺序，并加以简单的解释。
+7) select 8) distinct &amp;lt;select_list&amp;gt; 1) from &amp;lt;left_table&amp;gt; 3) &amp;lt;join_type&amp;gt; join &amp;lt;right_table&amp;gt; 2) on &amp;lt;join_condition&amp;gt; 4) where &amp;lt;where_condition&amp;gt; 5) group by &amp;lt;group_by_list&amp;gt; 6) having &amp;lt;having_condition&amp;gt; 9) order by &amp;lt;order_by_list&amp;gt; 10) limit &amp;lt;limit_number&amp;gt; 1）from：对FROM子句中的左表&amp;lt;left_table&amp;gt;和右表&amp;lt;right_table&amp;gt;执行笛卡儿积（Cartesian product），产生虚拟表VT1。
+2）on： 对虚拟表VT1应用ON筛选，只有那些符合&amp;lt;join_condition&amp;gt;的行才被插入虚拟表VT2中。
+3）join：如果指定了OUTER JOIN（如LEFT OUTER JOIN、RIGHT OUTERJOIN），那么保留表中未匹配的行作为外部行添加到虚拟表VT2中，产生虚拟表VT3。如果FROM子句包含两个以上表，则对上一个连接生成的结果表VT3和下一个表重复执行步骤1）～步骤3），直到处理完所有的表为止。
+ 这里出现了两个陌生的名词：“保留表”、“外部行”。
+LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留表&amp;hellip;
+一时半会也解释不清这个东西，我自己懂了就好了，先挖个坑，日后再补上具体数据来做详细解释说明。
+ 4）where：对虚拟表VT3应用WHERE过滤条件，只有符合&amp;lt;where_condition&amp;gt;的记录才被插入虚拟表VT4中。
+5）group by：根据GROUP BY子句中的列，对VT4中的记录进行分组操作，产生VT5。
+6）having：对虚拟表VT6应用HAVING过滤器，只有符合&amp;lt;having_condition&amp;gt;的记录才被插入虚拟表VT6中。
+7）select：选择指定的列，插入到虚拟表V7中。
+ 看到没有，select到第7步才被执行，所以千万别人认为写在第一行的就是第一个被执行的。
+ 8）distinct：去除重复数据，产生虚拟表V8。
+9）order by：将虚拟表V8中的记录按照&amp;lt;order_by_list&amp;gt;进行排序操作，产生虚拟表V9。
+ ORDER BY 默认是升序排序，如果要指定为降序排序则需要加上 DESC 修饰。</description>
+    </item>
+    
     <item>
       <title>Hive认识我的第一天</title>
       <link>http://niuniu.langchao2020.tech/posts/hive-meeting/</link>

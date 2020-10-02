@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>浅谈SQL语句的执行顺序 :: ฅ՞•ﻌ•՞ฅ要抱抱</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="浅谈SQL语句的执行顺序 一、SQL语句执行顺序解析 SQL语句和编程语言的语句有很大的不同，有一点原因在于SQL并不一定是按照你写的SQL语句顺序执行的。因此在写SQL语句的时候很容易出现问题，最主要的问题还是记不住SQL命令，死记硬背效果好像也不是很好。
+需要知道的是，在SQL语句执行的过程中，都会产生一个虚拟表，用来保存SQL语句的执行结果。这些虚拟表对用户来说是透明的，只有最后一步生成的虚拟表才会返回给用户。如果没有再查询中指定某一子句，则将跳过相应的步骤。下面先给出SQL语句的执行顺序，并加以简单的解释。
+7) select 8) distinct &amp;lt;select_list&amp;gt; 1) from &amp;lt;left_table&amp;gt; 3) &amp;lt;join_type&amp;gt; join &amp;lt;right_table&amp;gt; 2) on &amp;lt;join_condition&amp;gt; 4) where &amp;lt;where_condition&amp;gt; 5) group by &amp;lt;group_by_list&amp;gt; 6) having &amp;lt;having_condition&amp;gt; 9) order by &amp;lt;order_by_list&amp;gt; 10) limit &amp;lt;limit_number&amp;gt; 1）from：对FROM子句中的左表&amp;lt;left_table&amp;gt;和右表&amp;lt;right_table&amp;gt;执行笛卡儿积（Cartesian product），产生虚拟表VT1。
+2）on： 对虚拟表VT1应用ON筛选，只有那些符合&amp;lt;join_condition&amp;gt;的行才被插入虚拟表VT2中。
+3）join：如果指定了OUTER JOIN（如LEFT OUTER JOIN、RIGHT OUTERJOIN），那么保留表中未匹配的行作为外部行添加到虚拟表VT2中，产生虚拟表VT3。如果FROM子句包含两个以上表，则对上一个连接生成的结果表VT3和下一个表重复执行步骤1）～步骤3），直到处理完所有的表为止。
+ 这里出现了两个陌生的名词：“保留表”、“外部行”。
+LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留表&amp;hellip;
+一时半会也解释不清这个东西，我自己懂了就好了，先挖个坑，日后再补上具体数据来做详细解释说明。
+ 4）where：对虚拟表VT3应用WHERE过滤条件，只有符合&amp;lt;where_condition&amp;gt;的记录才被插入虚拟表VT4中。
+5）group by：根据GROUP BY子句中的列，对VT4中的记录进行分组操作，产生VT5。
+6）having：对虚拟表VT6应用HAVING过滤器，只有符合&amp;lt;having_condition&amp;gt;的记录才被插入虚拟表VT6中。
+7）select：选择指定的列，插入到虚拟表V7中。
+ 看到没有，select到第7步才被执行，所以千万别人认为写在第一行的就是第一个被执行的。
+ 8）distinct：去除重复数据，产生虚拟表V8。
+9）order by：将虚拟表V8中的记录按照&amp;lt;order_by_list&amp;gt;进行排序操作，产生虚拟表V9。
+ ORDER BY 默认是升序排序，如果要指定为降序排序则需要加上 DESC 修饰。" />
+<meta name="keywords" content="niuniu, flink, spark, hadoop" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="http://niuniu.langchao2020.tech/posts/sql-execution-sequence/" />
+
+
+
+
+<link rel="stylesheet" href="http://niuniu.langchao2020.tech/assets/style.css">
+
+  <link rel="stylesheet" href="http://niuniu.langchao2020.tech/assets/green.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://niuniu.langchao2020.tech/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="http://niuniu.langchao2020.tech/img/favicon/green.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="浅谈SQL语句的执行顺序 :: ฅ՞•ﻌ•՞ฅ要抱抱">
+<meta property="og:description" content="SQL语句和编程语言的语句有很大的不同，有一点原因在于SQL并不一定是按照你写的SQL语句顺序执行的。" />
+<meta property="og:url" content="http://niuniu.langchao2020.tech/posts/sql-execution-sequence/" />
+<meta property="og:site_name" content="浅谈SQL语句的执行顺序" />
+
+  
+    <meta property="og:image" content="http://niuniu.langchao2020.tech/img/favicon/green.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+
+  <meta property="article:published_time" content="2020-10-02 19:10:59 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="green">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    牛牛ฅ^•ﻌ•^ฅ
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/">Home</a></li>
+      
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="http://niuniu.langchao2020.tech/posts/sql-execution-sequence/">浅谈SQL语句的执行顺序</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-02 
+      </span>
+    
+    
+    <span class="post-author">:: niuniu</span>
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="http://niuniu.langchao2020.tech/tags/sql/">SQL</a>&nbsp;
+    
+    #<a href="http://niuniu.langchao2020.tech/tags/hive-sql/">Hive SQL</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="浅谈sql语句的执行顺序">浅谈SQL语句的执行顺序<a href="#浅谈sql语句的执行顺序" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="一sql语句执行顺序解析">一、SQL语句执行顺序解析<a href="#一sql语句执行顺序解析" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>SQL语句和编程语言的语句有很大的不同，有一点原因在于SQL并不一定是按照你写的SQL语句顺序执行的。因此在写SQL语句的时候很容易出现问题，最主要的问题还是记不住SQL命令，死记硬背效果好像也不是很好。</p>
+<p>需要知道的是，在SQL语句执行的过程中，都会产生一个<em>虚拟表</em>，<code>用来保存SQL语句的执行结果</code>。这些虚拟表对用户来说是透明的，只有最后一步生成的虚拟表才会返回给用户。如果没有再查询中指定某一子句，则将跳过相应的步骤。下面先给出SQL语句的执行顺序，并加以简单的解释。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#ae81ff">7</span>) <span style="color:#66d9ef">select</span>
+<span style="color:#ae81ff">8</span>) <span style="color:#66d9ef">distinct</span> <span style="color:#f92672">&lt;</span>select_list<span style="color:#f92672">&gt;</span>
+<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">from</span> <span style="color:#f92672">&lt;</span>left_table<span style="color:#f92672">&gt;</span>
+<span style="color:#ae81ff">3</span>) <span style="color:#f92672">&lt;</span>join_type<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">join</span> <span style="color:#f92672">&lt;</span>right_table<span style="color:#f92672">&gt;</span>
+<span style="color:#ae81ff">2</span>) <span style="color:#66d9ef">on</span> <span style="color:#f92672">&lt;</span>join_condition<span style="color:#f92672">&gt;</span>
+<span style="color:#ae81ff">4</span>) <span style="color:#66d9ef">where</span> <span style="color:#f92672">&lt;</span>where_condition<span style="color:#f92672">&gt;</span>
+<span style="color:#ae81ff">5</span>) <span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> <span style="color:#f92672">&lt;</span>group_by_list<span style="color:#f92672">&gt;</span>
+<span style="color:#ae81ff">6</span>) <span style="color:#66d9ef">having</span> <span style="color:#f92672">&lt;</span>having_condition<span style="color:#f92672">&gt;</span>
+<span style="color:#ae81ff">9</span>) <span style="color:#66d9ef">order</span> <span style="color:#66d9ef">by</span> <span style="color:#f92672">&lt;</span>order_by_list<span style="color:#f92672">&gt;</span>
+<span style="color:#ae81ff">10</span>) <span style="color:#66d9ef">limit</span> <span style="color:#f92672">&lt;</span>limit_number<span style="color:#f92672">&gt;</span>
+</code></pre></div><p>1）<code>from</code>：对FROM子句中的左表&lt;left_table&gt;和右表&lt;right_table&gt;执行笛卡儿积（Cartesian product），产生虚拟表VT1。</p>
+<p>2）<code>on</code>： 对虚拟表VT1应用ON筛选，只有那些符合&lt;join_condition&gt;的行才被插入虚拟表VT2中。</p>
+<p>3）<code>join</code>：如果指定了OUTER JOIN（如LEFT OUTER JOIN、RIGHT OUTERJOIN），那么保留表中未匹配的行作为外部行添加到虚拟表VT2中，产生虚拟表VT3。如果FROM子句包含两个以上表，则对上一个连接生成的结果表VT3和下一个表重复执行步骤1）～步骤3），直到处理完所有的表为止。</p>
+<blockquote>
+<p>这里出现了两个陌生的名词：“保留表”、“外部行”。</p>
+<p>LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留表&hellip;</p>
+<p>一时半会也解释不清这个东西，我自己懂了就好了，先挖个坑，日后再补上具体数据来做详细解释说明。</p>
+</blockquote>
+<p>4）<code>where</code>：对虚拟表VT3应用WHERE过滤条件，只有符合&lt;where_condition&gt;的记录才被插入虚拟表VT4中。</p>
+<p>5）<code>group by</code>：根据GROUP BY子句中的列，对VT4中的记录进行分组操作，产生VT5。</p>
+<p>6）<code>having</code>：对虚拟表VT6应用HAVING过滤器，只有符合&lt;having_condition&gt;的记录才被插入虚拟表VT6中。</p>
+<p>7）<code>select</code>：选择指定的列，插入到虚拟表V7中。</p>
+<blockquote>
+<p>看到没有，select到第7步才被执行，所以千万别人认为写在第一行的就是第一个被执行的。</p>
+</blockquote>
+<p>8）<code>distinct</code>：去除重复数据，产生虚拟表V8。</p>
+<p>9）<code>order by</code>：将虚拟表V8中的记录按照&lt;order_by_list&gt;进行排序操作，产生虚拟表V9。</p>
+<blockquote>
+<p>ORDER BY 默认是升序排序，如果要指定为降序排序则需要加上 DESC 修饰。</p>
+</blockquote>
+<p>10）<code>limit</code>：取出指定行的记录，产生虚拟表V10，<strong>并返回给查询用户</strong>。</p>
+<blockquote>
+<p>值得注意的是：LIMIT n, m 表示从第n条记录开始选择m条记录。少量数据时，使用limit进行分页查询是没有任何问题的，但是对于大量数据而言，<code>LIMIT n, m</code>是很低效的。原因是LIMIT每次都是从头开始扫描，如果要取第100万行开始3条数据的话，就需要先扫描定位到第100万行，然后再取，可见其效率是很低很低的。</p>
+</blockquote>
+<h3 id="二附送hive中四个by的区别">二、附送：Hive中四个BY的区别<a href="#二附送hive中四个by的区别" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>所谓四个BY指的是：</p>
+<ol>
+<li>order by</li>
+<li>sort by</li>
+<li>distribute by</li>
+<li>cluster by</li>
+</ol>
+<p><code>关于order by</code>：</p>
+<blockquote>
+<p>order by会对输入做<code>全局排序</code>，因此只有一个reducer，然而当只有一个reducer会导致当输入数据规模很大时，消耗较长的计算时间。</p>
+</blockquote>
+<p><code>关于sort by</code>：</p>
+<blockquote>
+<p>sort by会在数据进入reducer前完成排序，实现的是局部排序。因此，如果用 sort by进行排序并且设置 mapped. reduce. tasks &gt;1，则 sort by只会保证每个 reducer的输出有序，并不保证全局有序。</p>
+<p>所以在使用sort by之前还需要设置reduce的个数：</p>
+<p>set mapreduce.job.reducers=4;</p>
+</blockquote>
+<p><code>关于distribute by</code>：</p>
+<blockquote>
+<p>distribute by是控制在map端如何拆分数据给 reduce端的。hive会根据 distribute by后面的列，对应  reduce的个数进行分发，默认是采用hash算法。sort by为每个 reduce产生一个排序文件。在有些情况下，<strong>你需要控制某个特定行应该到哪个 reducer</strong>，这通常是为了进行后续的<code>聚集操作</code>。distribute by刚好可以做这件事。因此， distribute by经常和 sort by配合使用。并且hive规定distribute by  语句要写在sort by语句之前。</p>
+</blockquote>
+<p><code>关于cluster by</code>：</p>
+<blockquote>
+<p>当distribute by 和 sort by 所指定的字段相同时，cluster by的效果等同于sort by + distribute by，但是cluster by 指定的列<code>只能是升序</code>，且补鞥呢指定asc和desc。</p>
+</blockquote>
+<p>其实本人还有两个疑问，那就是<code>group by</code>和<code>partition by</code>。</p>
+<p>group by操作表示按照某些字段的值进行分组，有相同的值放到一起。</p>
+<p>partition by 按照字段对数据进行分组。</p>
+
+      </div></div>
+
+  
+  
+<div class="pagination">
+    <div class="pagination__title">
+        <span class="pagination__title-h">Read other posts</span>
+        <hr />
+    </div>
+    <div class="pagination__buttons">
+        
+        
+        <span class="button next">
+            <a href="http://niuniu.langchao2020.tech/posts/hive-meeting/">
+                <span class="button__text">Hive认识我的第一天</span>
+                <span class="button__icon">→</span>
+            </a>
+        </span>
+        
+    </div>
+</div>
+
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>Copyright © 2020 牛牛ฅ^•ﻌ•^ฅ ❤️</span>
+    
+        
+      </div>
+  </div>
+</footer>
+
+<script src="http://niuniu.langchao2020.tech/assets/main.js"></script>
+<script src="http://niuniu.langchao2020.tech/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

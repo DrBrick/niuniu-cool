@@ -3,27 +3,42 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://niuniu.langchao2020.tech/tags/hive-sql/</loc>
+    <lastmod>2020-10-02T19:10:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://niuniu.langchao2020.tech/posts/</loc>
+    <lastmod>2020-10-02T19:10:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://niuniu.langchao2020.tech/tags/sql/</loc>
+    <lastmod>2020-10-02T19:10:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://niuniu.langchao2020.tech/tags/</loc>
+    <lastmod>2020-10-02T19:10:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://niuniu.langchao2020.tech/</loc>
+    <lastmod>2020-10-02T19:10:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://niuniu.langchao2020.tech/posts/sql-execution-sequence/</loc>
+    <lastmod>2020-10-02T19:10:59+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://niuniu.langchao2020.tech/tags/hive/</loc>
     <lastmod>2020-10-01T17:08:58+08:00</lastmod>
   </url>
   
   <url>
     <loc>http://niuniu.langchao2020.tech/posts/hive-meeting/</loc>
-    <lastmod>2020-10-01T17:08:58+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://niuniu.langchao2020.tech/posts/</loc>
-    <lastmod>2020-10-01T17:08:58+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://niuniu.langchao2020.tech/tags/</loc>
-    <lastmod>2020-10-01T17:08:58+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://niuniu.langchao2020.tech/</loc>
     <lastmod>2020-10-01T17:08:58+08:00</lastmod>
   </url>
   
