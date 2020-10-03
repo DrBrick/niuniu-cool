@@ -7,7 +7,22 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Fri, 02 Oct 2020 19:10:59 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 03 Oct 2020 21:01:25 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>请为Hive开扇窗</title>
+      <link>http://niuniu.langchao2020.tech/posts/hive-window-func/</link>
+      <pubDate>Sat, 03 Oct 2020 21:01:25 +0800</pubDate>
+      
+      <guid>http://niuniu.langchao2020.tech/posts/hive-window-func/</guid>
+      <description>一、Hive中的开窗函数 1.1 关于开窗函数 什么是开窗函数？
+回答这个问题之前先要了解一下什么是聚合函数。聚合函数是SQL的基本函数，其功能是对一组值执行计算，并返回单个值。再说一遍，聚合函数是SQL的基本函数，其功能是对一组值执行计算，并返回单个值。
+常见的聚合函数有：sum()，count()，max()，min()， avg()等，这些聚合函数通常与group by 子句连用，除了count以外，聚合函数忽略空值；
+上面有说到，聚合函数只返回单个值，而开窗函数则可为窗口中的每行都返回一个值。更简单的理解就是，对查询的结果多出一列或者多列，列中可以是聚合值也可以试排序值。
+一般地，开窗函数也叫分析函数，有两类：聚合开窗函数、排序开窗函数。
+另外：
+ SQL标准运行将所有的聚合函数用作开窗函数，用OVER关键字区分开窗函数和聚合函数。 聚合函数每组只返回一个值，开窗函数每组（每个窗口）可返回多个值。（上面也有说到过为每行都返回一个值）  1.2 举个不太熟栗子。 [root@hadoop200m mydata]# more student_score.data 1 zs1 chinese 80 2 zs1 math 90 3 zs1 english 89 4 zs2 chinese 60 5 zs2 math 75 6 zs2 english 80 7 zs3 chinese 79 8 zs3 math 83 9 zs3 english 72 10 zs4 chinese 90 11 zs4 math 76 12 zs4 english 80 13 zs5 chinese 98 14 zs5 math 80 15 zs5 english 70 select * from student_score; +-------------------+---------------------+--------------------+----------------------+ | student_score.</description>
+    </item>
+    
     <item>
       <title>浅谈SQL语句的执行顺序</title>
       <link>http://niuniu.langchao2020.tech/posts/sql-execution-sequence/</link>

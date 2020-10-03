@@ -3,12 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>http://niuniu.langchao2020.tech/tags/hive-sql/</loc>
-    <lastmod>2020-10-02T19:10:59+08:00</lastmod>
+    <loc>http://niuniu.langchao2020.tech/posts/</loc>
+    <lastmod>2020-10-03T21:01:25+08:00</lastmod>
   </url>
   
   <url>
-    <loc>http://niuniu.langchao2020.tech/posts/</loc>
+    <loc>http://niuniu.langchao2020.tech/</loc>
+    <lastmod>2020-10-03T21:01:25+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://niuniu.langchao2020.tech/posts/hive-window-func/</loc>
+    <lastmod>2020-10-03T21:01:25+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://niuniu.langchao2020.tech/tags/hive-sql/</loc>
     <lastmod>2020-10-02T19:10:59+08:00</lastmod>
   </url>
   
@@ -19,11 +29,6 @@
   
   <url>
     <loc>http://niuniu.langchao2020.tech/tags/</loc>
-    <lastmod>2020-10-02T19:10:59+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://niuniu.langchao2020.tech/</loc>
     <lastmod>2020-10-02T19:10:59+08:00</lastmod>
   </url>
   
