@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>ฅ՞•ﻌ•՞ฅ要抱抱</title>
-    <link>http://niuniu.langchao2020.tech/</link>
+    <link>https://niuniu.langchao2020.tech/</link>
     <description>Recent content on ฅ՞•ﻌ•՞ฅ要抱抱</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Wed, 07 Oct 2020 21:39:44 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 07 Oct 2020 21:39:44 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>HBase建表设计原则和优化</title>
-      <link>http://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</link>
+      <link>https://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</link>
       <pubDate>Wed, 07 Oct 2020 21:39:44 +0800</pubDate>
       
-      <guid>http://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</guid>
+      <guid>https://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</guid>
       <description>一、关于HBase建表时的几个设计原则 1.1 预分区 背景：HBase默认建表时有一个Region，且这个Region是没有RowKey边界的，所有数据在写入时都是往这个默认的Region中存入数据。随着数据量的不断增加，Region达到一定大小后会自动Split，而Split过程中会产生两个问题：
  数据可能只会往一个Region里面写，造成热点问题； Split是昂贵的操作，会消耗宝贵的集群IO资源；  对策：在创建表的时候，创建多个空Region，并确定每个Region的StartRowKey和EndRowKey，通过RowKey的合理设计使得数据均匀的落在各个Region上，不会存在热点问题；
 1.2 RowKey的设计原则 （1）RowKey长度越短越好。HBase中的底层数据是以HFile文件形式组织的，而HFile中是安装KV存储的，如果K过大会极大的影响存储效率；写入数据时会经过MemStore，如果K过长所占空间过大，内存的有效利用就会降低。
@@ -49,10 +49,10 @@ HBase负责组织HDFS上的文件（HDFS只负责存储）；</description>
     
     <item>
       <title>请为Hive开扇窗</title>
-      <link>http://niuniu.langchao2020.tech/posts/hive-window-func/</link>
+      <link>https://niuniu.langchao2020.tech/posts/hive-window-func/</link>
       <pubDate>Sat, 03 Oct 2020 21:01:25 +0800</pubDate>
       
-      <guid>http://niuniu.langchao2020.tech/posts/hive-window-func/</guid>
+      <guid>https://niuniu.langchao2020.tech/posts/hive-window-func/</guid>
       <description>一、Hive中的开窗函数 1.1 关于开窗函数 什么是开窗函数？
 回答这个问题之前先要了解一下什么是聚合函数。聚合函数是SQL的基本函数，其功能是对一组值执行计算，并返回单个值。再说一遍，聚合函数是SQL的基本函数，其功能是对一组值执行计算，并返回单个值。
 常见的聚合函数有：sum()，count()，max()，min()， avg()等，这些聚合函数通常与group by 子句连用，除了count以外，聚合函数忽略空值；
@@ -64,10 +64,10 @@ HBase负责组织HDFS上的文件（HDFS只负责存储）；</description>
     
     <item>
       <title>浅谈SQL语句的执行顺序</title>
-      <link>http://niuniu.langchao2020.tech/posts/sql-execution-sequence/</link>
+      <link>https://niuniu.langchao2020.tech/posts/sql-execution-sequence/</link>
       <pubDate>Fri, 02 Oct 2020 19:10:59 +0800</pubDate>
       
-      <guid>http://niuniu.langchao2020.tech/posts/sql-execution-sequence/</guid>
+      <guid>https://niuniu.langchao2020.tech/posts/sql-execution-sequence/</guid>
       <description>浅谈SQL语句的执行顺序 一、SQL语句执行顺序解析 SQL语句和编程语言的语句有很大的不同，有一点原因在于SQL并不一定是按照你写的SQL语句顺序执行的。因此在写SQL语句的时候很容易出现问题，最主要的问题还是记不住SQL命令，死记硬背效果好像也不是很好。
 需要知道的是，在SQL语句执行的过程中，都会产生一个虚拟表，用来保存SQL语句的执行结果。这些虚拟表对用户来说是透明的，只有最后一步生成的虚拟表才会返回给用户。如果没有再查询中指定某一子句，则将跳过相应的步骤。下面先给出SQL语句的执行顺序，并加以简单的解释。
 7) select 8) distinct &amp;lt;select_list&amp;gt; 1) from &amp;lt;left_table&amp;gt; 3) &amp;lt;join_type&amp;gt; join &amp;lt;right_table&amp;gt; 2) on &amp;lt;join_condition&amp;gt; 4) where &amp;lt;where_condition&amp;gt; 5) group by &amp;lt;group_by_list&amp;gt; 6) having &amp;lt;having_condition&amp;gt; 9) order by &amp;lt;order_by_list&amp;gt; 10) limit &amp;lt;limit_number&amp;gt; 1）from：对FROM子句中的左表&amp;lt;left_table&amp;gt;和右表&amp;lt;right_table&amp;gt;执行笛卡儿积（Cartesian product），产生虚拟表VT1。
@@ -88,10 +88,10 @@ LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留�
     
     <item>
       <title>Hive认识我的第一天</title>
-      <link>http://niuniu.langchao2020.tech/posts/hive-meeting/</link>
+      <link>https://niuniu.langchao2020.tech/posts/hive-meeting/</link>
       <pubDate>Thu, 01 Oct 2020 17:08:58 +0800</pubDate>
       
-      <guid>http://niuniu.langchao2020.tech/posts/hive-meeting/</guid>
+      <guid>https://niuniu.langchao2020.tech/posts/hive-meeting/</guid>
       <description>一、Hive简介 1.1 什么是Hive Hive官网给出的定义是：“The Apache Hive ™ data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.”
 我粗糙的理解是，Hive是一个类似Hadoop（集群）的客户端，所谓客户端在手天下我有。就好比你拿到了电视的遥控器，想怎么操作电视就怎么操作电视，比如换台。实际上Hive使用的是类似SQL的语句去操作（离线数据分析、数据管理&amp;hellip;）HDFS上的数据，本质是将SQL语句转化成MapReduce作业。
 1.2 为什么要使用Hive Hive的本质是将SQL转化成MapReduce作业，那么直接使用MapReduce不就好了，何必转一个弯呢？因为Hive更方便啊，它是遥控器！MapReduce编程模型还是有一定门槛的，代码量多而且只有map和reduce过程，实现复杂的计算逻辑则难度相当之大。
@@ -110,10 +110,10 @@ LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留�
     
     <item>
       <title>About</title>
-      <link>http://niuniu.langchao2020.tech/about/</link>
+      <link>https://niuniu.langchao2020.tech/about/</link>
       <pubDate>Thu, 01 Oct 2020 00:52:18 +0800</pubDate>
       
-      <guid>http://niuniu.langchao2020.tech/about/</guid>
+      <guid>https://niuniu.langchao2020.tech/about/</guid>
       <description>人的一生中，真正属于自己的财富只有两个：自己的“才华”和自己的“时间”。通常才华越来越多而时间越来越少。人生就是用时间换取才华。</description>
     </item>
     

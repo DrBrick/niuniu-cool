@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Hive on ฅ՞•ﻌ•՞ฅ要抱抱</title>
-    <link>http://niuniu.langchao2020.tech/tags/hive/</link>
+    <link>https://niuniu.langchao2020.tech/tags/hive/</link>
     <description>Recent content in Hive on ฅ՞•ﻌ•՞ฅ要抱抱</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Thu, 01 Oct 2020 17:08:58 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/tags/hive/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 01 Oct 2020 17:08:58 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/tags/hive/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Hive认识我的第一天</title>
-      <link>http://niuniu.langchao2020.tech/posts/hive-meeting/</link>
+      <link>https://niuniu.langchao2020.tech/posts/hive-meeting/</link>
       <pubDate>Thu, 01 Oct 2020 17:08:58 +0800</pubDate>
       
-      <guid>http://niuniu.langchao2020.tech/posts/hive-meeting/</guid>
+      <guid>https://niuniu.langchao2020.tech/posts/hive-meeting/</guid>
       <description>一、Hive简介 1.1 什么是Hive Hive官网给出的定义是：“The Apache Hive ™ data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.”
 我粗糙的理解是，Hive是一个类似Hadoop（集群）的客户端，所谓客户端在手天下我有。就好比你拿到了电视的遥控器，想怎么操作电视就怎么操作电视，比如换台。实际上Hive使用的是类似SQL的语句去操作（离线数据分析、数据管理&amp;hellip;）HDFS上的数据，本质是将SQL语句转化成MapReduce作业。
 1.2 为什么要使用Hive Hive的本质是将SQL转化成MapReduce作业，那么直接使用MapReduce不就好了，何必转一个弯呢？因为Hive更方便啊，它是遥控器！MapReduce编程模型还是有一定门槛的，代码量多而且只有map和reduce过程，实现复杂的计算逻辑则难度相当之大。

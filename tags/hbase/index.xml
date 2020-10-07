@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>HBase on ฅ՞•ﻌ•՞ฅ要抱抱</title>
-    <link>http://niuniu.langchao2020.tech/tags/hbase/</link>
+    <link>https://niuniu.langchao2020.tech/tags/hbase/</link>
     <description>Recent content in HBase on ฅ՞•ﻌ•՞ฅ要抱抱</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Wed, 07 Oct 2020 21:39:44 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/tags/hbase/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 07 Oct 2020 21:39:44 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/tags/hbase/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>HBase建表设计原则和优化</title>
-      <link>http://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</link>
+      <link>https://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</link>
       <pubDate>Wed, 07 Oct 2020 21:39:44 +0800</pubDate>
       
-      <guid>http://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</guid>
+      <guid>https://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</guid>
       <description>一、关于HBase建表时的几个设计原则 1.1 预分区 背景：HBase默认建表时有一个Region，且这个Region是没有RowKey边界的，所有数据在写入时都是往这个默认的Region中存入数据。随着数据量的不断增加，Region达到一定大小后会自动Split，而Split过程中会产生两个问题：
  数据可能只会往一个Region里面写，造成热点问题； Split是昂贵的操作，会消耗宝贵的集群IO资源；  对策：在创建表的时候，创建多个空Region，并确定每个Region的StartRowKey和EndRowKey，通过RowKey的合理设计使得数据均匀的落在各个Region上，不会存在热点问题；
 1.2 RowKey的设计原则 （1）RowKey长度越短越好。HBase中的底层数据是以HFile文件形式组织的，而HFile中是安装KV存储的，如果K过大会极大的影响存储效率；写入数据时会经过MemStore，如果K过长所占空间过大，内存的有效利用就会降低。

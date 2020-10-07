@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>SQL on ฅ՞•ﻌ•՞ฅ要抱抱</title>
-    <link>http://niuniu.langchao2020.tech/tags/sql/</link>
+    <link>https://niuniu.langchao2020.tech/tags/sql/</link>
     <description>Recent content in SQL on ฅ՞•ﻌ•՞ฅ要抱抱</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Fri, 02 Oct 2020 19:10:59 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/tags/sql/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 02 Oct 2020 19:10:59 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/tags/sql/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>浅谈SQL语句的执行顺序</title>
-      <link>http://niuniu.langchao2020.tech/posts/sql-execution-sequence/</link>
+      <link>https://niuniu.langchao2020.tech/posts/sql-execution-sequence/</link>
       <pubDate>Fri, 02 Oct 2020 19:10:59 +0800</pubDate>
       
-      <guid>http://niuniu.langchao2020.tech/posts/sql-execution-sequence/</guid>
+      <guid>https://niuniu.langchao2020.tech/posts/sql-execution-sequence/</guid>
       <description>浅谈SQL语句的执行顺序 一、SQL语句执行顺序解析 SQL语句和编程语言的语句有很大的不同，有一点原因在于SQL并不一定是按照你写的SQL语句顺序执行的。因此在写SQL语句的时候很容易出现问题，最主要的问题还是记不住SQL命令，死记硬背效果好像也不是很好。
 需要知道的是，在SQL语句执行的过程中，都会产生一个虚拟表，用来保存SQL语句的执行结果。这些虚拟表对用户来说是透明的，只有最后一步生成的虚拟表才会返回给用户。如果没有再查询中指定某一子句，则将跳过相应的步骤。下面先给出SQL语句的执行顺序，并加以简单的解释。
 7) select 8) distinct &amp;lt;select_list&amp;gt; 1) from &amp;lt;left_table&amp;gt; 3) &amp;lt;join_type&amp;gt; join &amp;lt;right_table&amp;gt; 2) on &amp;lt;join_condition&amp;gt; 4) where &amp;lt;where_condition&amp;gt; 5) group by &amp;lt;group_by_list&amp;gt; 6) having &amp;lt;having_condition&amp;gt; 9) order by &amp;lt;order_by_list&amp;gt; 10) limit &amp;lt;limit_number&amp;gt; 1）from：对FROM子句中的左表&amp;lt;left_table&amp;gt;和右表&amp;lt;right_table&amp;gt;执行笛卡儿积（Cartesian product），产生虚拟表VT1。
