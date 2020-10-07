@@ -7,7 +7,46 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Sat, 03 Oct 2020 21:01:25 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 07 Oct 2020 21:39:44 +0800</lastBuildDate><atom:link href="http://niuniu.langchao2020.tech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>HBase建表设计原则和优化</title>
+      <link>http://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</link>
+      <pubDate>Wed, 07 Oct 2020 21:39:44 +0800</pubDate>
+      
+      <guid>http://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</guid>
+      <description>一、关于HBase建表时的几个设计原则 1.1 预分区 背景：HBase默认建表时有一个Region，且这个Region是没有RowKey边界的，所有数据在写入时都是往这个默认的Region中存入数据。随着数据量的不断增加，Region达到一定大小后会自动Split，而Split过程中会产生两个问题：
+ 数据可能只会往一个Region里面写，造成热点问题； Split是昂贵的操作，会消耗宝贵的集群IO资源；  对策：在创建表的时候，创建多个空Region，并确定每个Region的StartRowKey和EndRowKey，通过RowKey的合理设计使得数据均匀的落在各个Region上，不会存在热点问题；
+1.2 RowKey的设计原则 （1）RowKey长度越短越好。HBase中的底层数据是以HFile文件形式组织的，而HFile中是安装KV存储的，如果K过大会极大的影响存储效率；写入数据时会经过MemStore，如果K过长所占空间过大，内存的有效利用就会降低。
+（2）RowKey尽量散列。建议将RowKey的高位作为散列字段，使得数据均衡分布在每个RegionServer，提高负载均衡的几率，避免热点问题；
+（3）保证RowKey的唯一性
+1.3 列族的设计原则 （1）列族名不宜过长
+（2）建表时至少指定一个列族，列族一般不超过五个
+（3）不同列族的记录数据集不应相差太大
+二、关于HBase的常用优化方法 2.1 调优从如下几方面着手 （1）Master高可用：在HBase中Master负责监控RegionServer的生命周期，均衡RegionServer的负载，如果Master宕机则HBase集群将无法使用。
+（2）RegionServer预分区：提前大致规划好RegionServer的分区，因为每一个Region维护着StartRowKey和EndRowKey，如果加入的数据RowKey符合某个范围，则把该数据提交给Region。
+（3）优化RowKey的设计：RowKey是数据的唯一表示，数据存储在哪个Region取决于RowKey在哪一个预分区区间内，所以合理设计RowKey可在一定程度上防止数据倾斜。
+（4）内存优化：HBase操作的过程中需要大量的内存开销，一般会分配整个可用内存的70%给HBase的Java堆，如果配置太大则GC过程持续太久会导致RegionServer长期处于不可用状态。
+（5）减少Region分裂次数，给HFile设置合理大小；
+2.2 各种减少 （1）关闭Compation操作，合并操作在业务低峰时手动进行；
+（2）减少数据量，开启布隆过滤器可提高查询速度，降低网络I/O
+（3）数据存储时使用压缩，如Snappy、LZO、GZip等压缩方式
+2.3 HMaster和HRgionserver职责 HMaster和HRegionServer分别是Master和RegionServer在操作系统层面上的具体实现，体现的是两个HBase进程；
+HMaster的职责：
+（1）记录Region在哪台RegionServer服务器上；
+（2）新机器加入时负责RegionServer的负载均衡；
+（3）Region满足一定大小后需要Split后，HMaster负责Region的分配；
+（4）RegionServer宕机之后，负责迁移n多个Region到其它RegionServer；
+（5）管理用户对Table表的增删改操作；
+HRegionServer的职责：
+（1）负责响应用户的IO请求，比如读写HDFS上的数据；
+（2）管理多个Region分区；
+三、附送：Hive和HBase的区别 3.1 HBase和Hive的区别 共同点：HBase和Hive都是基于Hadoop的，都是使用HDFS作为底层存储。
+Hive是基于Hadoop的数据仓库分析工具，其作用是对海量的数据进行离线分析、计算，本质是将Hive SQL转化成MapReduce任务。
+Hive不支持索引，所进行的操作都是全表扫描；而HBase支持索引，支持海量数据的随机读操作，一定程度上弥补了HDFS对准实时查询操作的缺陷。
+Hive中的表是纯逻辑概念，它本身不存储和计算数据，而HBase中的表是物理表，而且都是以列存储数据的。其内部有一个超大内存的Hash表，用来存储数据的索引，支持随机访问；
+HBase负责组织HDFS上的文件（HDFS只负责存储）；</description>
+    </item>
+    
     <item>
       <title>请为Hive开扇窗</title>
       <link>http://niuniu.langchao2020.tech/posts/hive-window-func/</link>
