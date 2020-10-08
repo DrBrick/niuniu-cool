@@ -47,5 +47,31 @@ Hive中的表是纯逻辑概念，它本身不存储和计算数据，而HBase�
 HBase负责组织HDFS上的文件（HDFS只负责存储）；</description>
     </item>
     
+    <item>
+      <title>浅谈HBase入门以及一些学习感悟</title>
+      <link>https://niuniu.langchao2020.tech/posts/talk-about-hbase01/</link>
+      <pubDate>Tue, 06 Oct 2020 22:34:18 +0800</pubDate>
+      
+      <guid>https://niuniu.langchao2020.tech/posts/talk-about-hbase01/</guid>
+      <description>一、前言 1.1 关于HBase我早就想学了 刚接触大数据的时候就听说过这些名词，Hadoop、HDFS、MapReduce、YARN、Hive、Spark、Flink&amp;hellip;.等，其中也听说过今天的主角——HBase。看到它的简要介绍时不禁发出感叹，好吊啊！能够存储几亿行*几百万列的数据量，当时截图给网友看的时候我都惊呆了。
+后面也陆续看了一些入门级别的HBase的教程，脑子里也有一些关于它的印象，什么RegionServer啊，Master啥的，心里也惦记着什么时候来学一学它。
+1.2 之前做了些什么？ 相比于其它组件，我还是算比较早接触到HBase的，从安装好了Hadoop集群之后就把HBase分布式数据库也给安装起来了，安装好了之后打开Web监控页面，写个test表建表语句，Web端看看瞧瞧也就算完成任务了。后面就去学习其他大数据组件去了，什么Hive、Spark、Flink、数据仓库、Kafka轮着来，就是没有轮到HBase，于是HBase的学习就一拖再拖&amp;hellip;
+1.3 为什么放缓学习HBase的进度？ 偶然的机会进入了一位网课老师的QQ学习内部群，是关于入行大数据的课程的学习群。我在群里有问到他课程体系中怎么没有HBase，他说HBase在这个系列课程中用的不是很多，追求精简就直接把HBase这块的内容给删减掉了。还有一个原因是传统JavaWeb方向也有用到HBase服务的，所以给我的感觉是HBase也重要但是不如其它大数据组件重要，于是就没有把重心放在HBase的学习上，不过我倒是也有在无聊的时候看看它，有时候技术交流群里面也会谈到HBase，也能顺便学到一些知识。
+1.4 今天开始学习HBase 昨天晚上躺床上我就想着今天应该把HBase给学了，因为看到很多小伙伴在群里讨论HBase的相关技术，我一句话也插不上，简直白瞎，哈哈( • ̀ω•́ )✧。在慕课网找了两门关于HBase的免费课程，一个偏入门，一个偏存储原理，而今天的这则笔记主要摘自HBase入门的视频课程。
+二、HBase入门 2.0 重要的事情才标0 今天在视频中听到老师说了这么一句话“学习任何一门技术之前需要搞清楚意义在哪里，学完之后它能帮助我们解决什么问题，和其它相类似的技术有什么区别。”，这句话很快就被我捕捉到了，我觉得这句话对我帮助很大很大。目前为止也学了蛮多技术了，从前端到后端再到大数据，每个框架每门语言都有着特定的用途，这也是它们在软件开发中的定位。比如Python虽然也能搞Web后端，但是远不如Java搞后端；比如JavaScript天生为Web页面而生，Go语言优秀的性能使得它完美的适合用于处理高并发、区块链的开发之中&amp;hellip;.
+于是我又想到了——HBase在Hadoop大数据体系的定义和定位。为什么要考虑这个，换个思路，你是否也要考虑你在这个世界的定义和定位？
+2.1 HBase的应用场景及特点  面向列：HBase是面向列的存储，支持独立检索 多版本存储：每一个列的数据存储有多个Version 稀疏性：表中为空的列并不占用存储空间，因此表可以设计的非常稀疏 良好的扩展性：数据底层依赖于HDFS 高可靠性：WAL预写日志机制保证了数据写入时不会因为集群出现异常而导致数据丢失或损坏 高性能：底层的LSM日志合并树和RowKey有序排序的独特架构特性，使得HBase具有非常高的写入性能  2.2 HBase架构体系与设计模型 HBase强烈依赖于两个外部服务：HDFS和Zookeeper。主要包含两个进程：Master、RegionServer（在Linux系统上实际实现的进程分别是：HMaster、HRegionServer；
+（本想在这里插入一张HBase体系架构图，但是考虑到Typora插入图片并发布到网上可能会耗费我很多时间，而且今天的时间已经不多了，所以打算明天再来解决插入图片的问题）。
+ 利用Gitee+PicGo搞了一个免费的Hugo博客图床服务，不得不说Gitee真的很良心，免费提供5G存储空间，大赞！在Typora中设置图床服务为PicGo，在你把图片粘贴到编辑器中时Typora会通过PicGo自动把图片上传到Gitee上，图片链接全网可访问！
+ 在HBase中有一个Master和多个RegionServer服务，其中RegionServer管理多个Region，Region是HBase实现高性能和负载均衡的基本单位。一个Region含有多个列族，每个列族下有多个列。
+关于HBase更多的底层存储细节今天在此不表，打算明天在写一则关于HBase存储原理的博客，进一步强化自己对HBase的理解。比如为什么HBase插入性能很高，为什么随机读的速度很快等常见问题都可以被轻松的回答&amp;hellip;&amp;hellip;(给自己挖坑)！
+2.3 HBase数据模型举例说明 关于列族：
+ 一张表的列族不会超过5个 每个列族中的列数没有限制 列只有插入数据后存在 列在列族中是有序的（字典序）  关于Region：
+ 每个Region管理若干条数据记录 一个RegionServer中有多个Region，且不同的Region可能会分不到不同的RegionServer上 Region中的数据和其它Region中的数据是互斥的  2.4 HBase表和传统关系型数据表结构的对比 在HBase中，列可以动态增加、数据可自动切分（一个Region达到阈值大小会自动切分成多个Region）、高并发读写，但不支持条件查询。
+而传统关系型数据库支持复杂的条件查询，对事务的支持很好，但是不具备HBase所具有的优点。
+2.5 HBase的安装部署 安装部署就不赘述了，右手就能做，正经人谁去老老实实的把安装部署的全过程贴出来啊！不过需要值得注意的是安装HBase之前需要做这么几件事：
+ JDK1.8以上的安装 Hadoop的安装 Zookeeper的安装 hbase-env.sh的配置 hbase-site.xml的配置 别忘记了，web监控页面端口是16010  2.</description>
+    </item>
+    
   </channel>
 </rss>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>再来一道SQL题 :: ฅ՞•ﻌ•՞ฅ要抱抱</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一、求每一年最高气温的那一天以及温度 1.1 数据准备 2014010114 2014010216 2014010317 2014010410 2014010506 2012010609 2012010732 2012010812 2012010919 2012011023 2001010116 2001010212 2001010310 2001010411 2001010529 2013010619 2013010722 2013010812 2013010929 2013011023 2008010105 2008010216 2008010337 2008010414 2008010516 2007010619 2007010712 2007010812 2007010999 2007011023 2010010114 2010010216 2010010317 2010010410 2010010506 2015010649 2015010722 2015010812 2015010999 2015011023 数据的含义是：2010012325表示在2010年01月23日的气温为25度。
+建表、导入数据：
+create table tempertrue(data string); load data local inpath &amp;#34;/data/soft/hive-3.2.1/mydata/tempertrue.txt&amp;#34; into table tempertrue; ※ 1.2 求每一年最高气温的那一天以及温度 首先，先创建一个临时视图，把data分割日期和温度两个字段。
+create view temp as select substr(data, 1, 8) as ttime, substr(data, 9) as tep from tempertrue; 利用开窗函数、substr函数对data分割后分组并排序：" />
+<meta name="keywords" content="niuniu, flink, spark, hadoop" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://niuniu.langchao2020.tech/posts/keep-water-for-hive/" />
+
+
+
+
+<link rel="stylesheet" href="https://niuniu.langchao2020.tech/assets/style.css">
+
+  <link rel="stylesheet" href="https://niuniu.langchao2020.tech/assets/green.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://niuniu.langchao2020.tech/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="https://niuniu.langchao2020.tech/img/favicon/green.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="再来一道SQL题 :: ฅ՞•ﻌ•՞ฅ要抱抱">
+<meta property="og:description" content="求每一年最高气温的那一天以及温度" />
+<meta property="og:url" content="https://niuniu.langchao2020.tech/posts/keep-water-for-hive/" />
+<meta property="og:site_name" content="再来一道SQL题" />
+
+  
+    <meta property="og:image" content="https://niuniu.langchao2020.tech/img/favicon/green.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+  <meta property="article:section" content="" />
+
+  <meta property="article:section" content="" />
+
+
+  <meta property="article:published_time" content="2020-10-04 21:37:37 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="green">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    牛牛ฅ^•ﻌ•^ฅ
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/archive">Archive</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/">Home</a></li>
+      
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+      
+        <li><a href="/archive">Archive</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://niuniu.langchao2020.tech/posts/keep-water-for-hive/">再来一道SQL题</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-04 
+      </span>
+    
+    
+    <span class="post-author">:: niuniu</span>
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://niuniu.langchao2020.tech/tags/hive/">Hive</a>&nbsp;
+    
+    #<a href="https://niuniu.langchao2020.tech/tags/"></a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="一求每一年最高气温的那一天以及温度">一、求每一年最高气温的那一天以及温度<a href="#一求每一年最高气温的那一天以及温度" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="11-数据准备">1.1 数据准备<a href="#11-数据准备" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-tex" data-lang="tex">2014010114
+2014010216
+2014010317
+2014010410
+2014010506
+2012010609
+2012010732
+2012010812
+2012010919
+2012011023
+2001010116
+2001010212
+2001010310
+2001010411
+2001010529
+2013010619
+2013010722
+2013010812
+2013010929
+2013011023
+2008010105
+2008010216
+2008010337
+2008010414
+2008010516
+2007010619
+2007010712
+2007010812
+2007010999
+2007011023
+2010010114
+2010010216
+2010010317
+2010010410
+2010010506
+2015010649
+2015010722
+2015010812
+2015010999
+2015011023
+
+</code></pre></div><p>数据的含义是：2010012325表示在2010年01月23日的气温为25度。</p>
+<p>建表、导入数据：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">table</span> tempertrue(<span style="color:#66d9ef">data</span> string);
+
+<span style="color:#66d9ef">load</span> <span style="color:#66d9ef">data</span> <span style="color:#66d9ef">local</span> inpath <span style="color:#e6db74">&#34;/data/soft/hive-3.2.1/mydata/tempertrue.txt&#34;</span> <span style="color:#66d9ef">into</span> <span style="color:#66d9ef">table</span> tempertrue;
+</code></pre></div><h3 id="-12-求每一年最高气温的那一天以及温度">※ 1.2 求每一年最高气温的那一天以及温度<a href="#-12-求每一年最高气温的那一天以及温度" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>首先，先创建一个临时视图，把data分割<code>日期</code>和<code>温度</code>两个字段。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">view</span> temp <span style="color:#66d9ef">as</span>
+<span style="color:#66d9ef">select</span>
+    substr(<span style="color:#66d9ef">data</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">8</span>) <span style="color:#66d9ef">as</span> ttime,
+    substr(<span style="color:#66d9ef">data</span>, <span style="color:#ae81ff">9</span>) <span style="color:#66d9ef">as</span> tep
+<span style="color:#66d9ef">from</span>
+    tempertrue;
+</code></pre></div><p>利用开窗函数、substr函数对data分割后分组并排序：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+    ttime,
+    tep
+<span style="color:#66d9ef">from</span>
+    (
+        <span style="color:#66d9ef">select</span>
+            ttime,
+            tep,
+            rank() over(
+                partition <span style="color:#66d9ef">by</span> substr(ttime, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>)
+                <span style="color:#66d9ef">order</span> <span style="color:#66d9ef">by</span>
+                    tep <span style="color:#66d9ef">desc</span>
+            ) <span style="color:#66d9ef">as</span> num
+        <span style="color:#66d9ef">from</span>
+            temp
+    ) <span style="color:#66d9ef">as</span> t1
+<span style="color:#66d9ef">where</span>
+    t1.num <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</code></pre></div><p>结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#f92672">+</span><span style="color:#75715e">-----------+------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>   ttime   <span style="color:#f92672">|</span> tep  <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">-----------+------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#ae81ff">20010105</span>  <span style="color:#f92672">|</span> <span style="color:#ae81ff">29</span>   <span style="color:#f92672">|</span>
+<span style="color:#f92672">|</span> <span style="color:#ae81ff">20070109</span>  <span style="color:#f92672">|</span> <span style="color:#ae81ff">99</span>   <span style="color:#f92672">|</span>
+<span style="color:#f92672">|</span> <span style="color:#ae81ff">20080103</span>  <span style="color:#f92672">|</span> <span style="color:#ae81ff">37</span>   <span style="color:#f92672">|</span>
+<span style="color:#f92672">|</span> <span style="color:#ae81ff">20100103</span>  <span style="color:#f92672">|</span> <span style="color:#ae81ff">17</span>   <span style="color:#f92672">|</span>
+<span style="color:#f92672">|</span> <span style="color:#ae81ff">20120107</span>  <span style="color:#f92672">|</span> <span style="color:#ae81ff">32</span>   <span style="color:#f92672">|</span>
+<span style="color:#f92672">|</span> <span style="color:#ae81ff">20130109</span>  <span style="color:#f92672">|</span> <span style="color:#ae81ff">29</span>   <span style="color:#f92672">|</span>
+<span style="color:#f92672">|</span> <span style="color:#ae81ff">20140103</span>  <span style="color:#f92672">|</span> <span style="color:#ae81ff">17</span>   <span style="color:#f92672">|</span>
+<span style="color:#f92672">|</span> <span style="color:#ae81ff">20150109</span>  <span style="color:#f92672">|</span> <span style="color:#ae81ff">99</span>   <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">-----------+------+
+</span></code></pre></div><blockquote>
+<p>关于这题，我的启发是，substr函数可以将表中某个字段列的值分割，然后再利用开窗函数对分割后的子字符串进行分组、排序。分组用的是partition by，排序用的是order by。</p>
+<p>还有，关于临时视图，好像很有用的样子。其实就是一个中间表，引入中间表我想是为了简化SQL语句的编写。</p>
+</blockquote>
+<h2 id="二sql中常见的几个字符分割函数">二、SQL中常见的几个字符分割函数：<a href="#二sql中常见的几个字符分割函数" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<ul>
+<li>
+<p>SUBSTR(str, pos, len): 从pos开始的位置，截取len个字符</p>
+</li>
+<li>
+<p>SUBSTR(str, pos): pos开始的位置，一直截取到最后</p>
+</li>
+</ul>
+<p>substr(string ,1,3) ：取string左边第1位置起，3字长的字符串。所以结果为： strsubstr(string, -1,3)：取string右边第1位置起，3字长的字符串。显然右边第一位置起往右不够3字长。结果只能是： gsubstr(string, -3,3)：取string右边第3位置起，3字长的字符串。结果为: ing
+Hive中在group by查询的时候要求出现在select后面的列都必须是出现在group by后面的，即select列必须是作为分组依据的列
+Hive中collect相关的函数有collect_list和collect_set。它们都是将分组中的某列转为一个数组返回，不同的是collect_list不去重而collect_set去重。</p>
+
+      </div></div>
+
+  
+  
+<div class="pagination">
+    <div class="pagination__title">
+        <span class="pagination__title-h">Read other posts</span>
+        <hr />
+    </div>
+    <div class="pagination__buttons">
+        
+        <span class="button previous">
+            <a href="https://niuniu.langchao2020.tech/posts/helloyarn/">
+                <span class="button__icon">←</span>
+                <span class="button__text">关于Hive和YARNの读书笔记</span>
+            </a>
+        </span>
+        
+        
+        <span class="button next">
+            <a href="https://niuniu.langchao2020.tech/posts/hive-window-func/">
+                <span class="button__text">请为Hive开扇窗</span>
+                <span class="button__icon">→</span>
+            </a>
+        </span>
+        
+    </div>
+</div>
+
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>Copyright © 2020 牛牛ฅ^•ﻌ•^ฅ ❤️</span>
+    
+        
+      </div>
+  </div>
+</footer>
+
+<script src="https://niuniu.langchao2020.tech/assets/main.js"></script>
+<script src="https://niuniu.langchao2020.tech/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

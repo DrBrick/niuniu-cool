@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>关于Hive和YARNの读书笔记 :: ฅ՞•ﻌ•՞ฅ要抱抱</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一、回顾Hive的架构 1.1 Hive的基本结构 在Hadoop 2.x版本以后，Hive所有运行的任务都是交由YARN来统一管理。下图所示为Hive作业的工作流程：
+客户端提交SQL作业到HiveServer2, HiveServer2会根据用户提交的SQL作业及数据库中现有的元数据信息（实际生产中存放在MySQL中）生成一份可供计算引擎执行的计划。每个执行计划对应若干MapReduce作业，Hive会将所有的MapReduce作业都一一提交到YARN中，由YARN去负责创建MapReduce作业对应的子任务任务，并协调它们的运行。YARN创建的子任务会与HDFS进行交互，获取计算所需的数据，计算完成后将最终的结果写入HDFS或者本地。
+从整个Hive运行作业的过程我们可以知道Hive自身主要包含3个部分：
+ 第一部分是客户端（Client） 第二部分是HiveServer2 第三部分是元数据以及元数据服务。  1.2 关于Hive的元数据 Hive的元数据保存在Hive的metastore数据中，里面记录着Hive数据库、表、分区和列的一些当前状态信息，通过收集这些状态信息，可以帮助我们更好地监控Hive 数据库当前的状态，提前感知可能存在的问题；可以帮助基于成本代价的SQL 查询优化，做更为正确的自动优化操作。
+Hive的元数据主要分为5个大部分：
+ 数据库相关的元数据 表相关的元数据 分区相关的元数据 文件存储相关的元数据 其他（事务信息、锁信息以及权限相关信息）  1.3 Hive的知识体系 下面一张图摘自《Hive性能调优实战》，全面的展示了Hive的知识体系，其实这篇文章算是我阅读这本书的读书笔记吧，很多知识点讲的比较详细我就直接摘抄下来了。
+二、YARN详解 2.1 传统多线程编程和调度框架的对比 在单机程序设计中， 为了快速处理一个大的数据集， 通常采用多线程并行编程。大体流程如下 ： 先由操作系统启动一个主线程， 由它负责数据切分、 任务分配、 子线程启动和销毁等工作， 而各个子线程只负责计算自己的数据， 当所有子线程处理完数据后， 主线程再退出。
+而，在生产环境中的大数据集群，所有作业或系统运行所需的资源，都不是直接向操作系统申请，而是交由资源管理器和调度框架代为申请。每个作业或系统所需的资源都是由资源管理和调度框架统一分配、协调。在业界中扮演这一角色的组件有YARN、Mesos等。
+2.2 YARN的优点 YARN作为资源调用框架有着如下优点：
+ 提高系统的资源利用率。不同系统和不同业务在不同的时间点对硬件资源的需求是不一样的，例如一些离线业务通常在凌晨时间启动，除了这个阶段的离线业务对资源的占用比较高，其他时间段基本是空闲的，通过统一资源调度和协调，将这些时间段的资源分配给其他系统。不仅计算资源可以共享，由于允许多套系统部署在一个集群，也能增加系统存储资源的利用率。 协调不同作业/不同系统的资源，减少不同作业和不同系统之间的资源争抢。例如通过资源管理和调度框架并通过一定的资源分配策略，能够保证在多作业情况下，各个作业都能够得到足够的资源得以运行，而不会出现一个作业占用所有资源，导致其他作业全部阻塞的情况。 增强系统扩展性。资源管理和调度框架，允许硬件资源的动态伸缩，而不会影响作业的运行。 资源调度与管理工具把控着资源的分配和任务的调度，直接影响程序的运行效率。如果任务得到资源少了，必将影响自身的程序运行效率，如果任务占用过多资源，在集群任务运行高峰期，必然导致挤占其他任务运行所需的资源。  那么如何利用资源与调度管理工具？作为大数据集群的使用者，基于Hive 做业务的开发者要高效地利用资源与调度管理工具，需要知道两方面的内容：
+ YARN运行的基本组成和工作原理，能够基本理清程序运行的整体流程，知道哪些过程或者配置可能成为瓶颈，可以先不用了解，但一定要有意识。 YARN资源调度与分配算法。   这里有个感触就是，对学习任何一个大数据组件是不是也应该采用这种方式呢？第一要熟悉该组件的基本组成和工作原理，对其大体的工作流程要熟悉。当然了看一遍是不可能全部记住以及全部消化和理解的。不如多看几遍，很多陌生的名词头一次看或许印象不深，但是如果多看几遍甚至发到技术群讨论一下，印象和理解或许更加深刻，也有助于对该技术组件的学习。
+由此引申HDFS、MapReduce、Kafka、HBase、Spark、Flink&amp;hellip;都按照这种套路来学，会不会有触类旁通的效果呢？
+ 2.3 YARN的基本组成 YARN的基本结构由一个ResourceManager与多个NodeManager组成。ResourceManager负责对NodeManager所持有的资源进行统一管理和调度。当在处理一个作业时ResourceManager会在NodeManager所在节点创建一全权负责单个作业运行和监控的程序ApplicationMaster。
+  ResouceManager（简称RM）
+ 资源管理器负责整个集群资源的调度，该组件由两部分构成：调度器（Scheduler）和ApplicationsMaster（简称ASM）。调度器会根据特定调度器实现调度算法，结合作业所在的队列资源容量，将资源按调度算法分配给每个任务。分配的资源将用容器（container）形式提供，容器是一个相对封闭独立的环境，已经将CPU、内存及任务运行所需环境条件封装在一起。通过容器可以很好地限定每个任务使用的资源量。YARN调度器目前在生产环境中被用得较多的有两种：能力调度器（CapacityScheduler）和公平调度器（Fair Scheduler）。（还有一种FIFO Scheduler）" />
+<meta name="keywords" content="niuniu, flink, spark, hadoop" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://niuniu.langchao2020.tech/posts/helloyarn/" />
+
+
+
+
+<link rel="stylesheet" href="https://niuniu.langchao2020.tech/assets/style.css">
+
+  <link rel="stylesheet" href="https://niuniu.langchao2020.tech/assets/green.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://niuniu.langchao2020.tech/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="https://niuniu.langchao2020.tech/img/favicon/green.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="关于Hive和YARNの读书笔记 :: ฅ՞•ﻌ•՞ฅ要抱抱">
+<meta property="og:description" content="这篇文章很多内容都是直接摘自上午看的《Hive性能调优实战》一书，主要内容是梳理了一下关于Hive、YARN以及MapReduce等知识点。" />
+<meta property="og:url" content="https://niuniu.langchao2020.tech/posts/helloyarn/" />
+<meta property="og:site_name" content="关于Hive和YARNの读书笔记" />
+
+  
+    <meta property="og:image" content="https://niuniu.langchao2020.tech/img/favicon/green.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+  <meta property="article:section" content="" />
+
+  <meta property="article:section" content="" />
+
+
+  <meta property="article:published_time" content="2020-10-05 21:12:17 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="green">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    牛牛ฅ^•ﻌ•^ฅ
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/archive">Archive</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/">Home</a></li>
+      
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+      
+        <li><a href="/archive">Archive</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://niuniu.langchao2020.tech/posts/helloyarn/">关于Hive和YARNの读书笔记</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-05 
+      </span>
+    
+    
+    <span class="post-author">:: niuniu</span>
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://niuniu.langchao2020.tech/tags/hive/">Hive</a>&nbsp;
+    
+    #<a href="https://niuniu.langchao2020.tech/tags/hadoop/">Hadoop</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="一回顾hive的架构">一、回顾Hive的架构<a href="#一回顾hive的架构" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="11-hive的基本结构">1.1 Hive的基本结构<a href="#11-hive的基本结构" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>在Hadoop 2.x版本以后，Hive所有运行的任务都是交由YARN来统一管理。下图所示为Hive作业的工作流程：</p>
+<p><img src="https://res.weread.qq.com/wrepub/epub_27559616_90" alt="https://res.weread.qq.com/wrepub/epub_27559616_90"></p>
+<p>客户端提交SQL作业到HiveServer2, HiveServer2会根据用户提交的SQL作业及数据库中现有的元数据信息（实际生产中存放在MySQL中）生成一份<code>可供计算引擎执行的计划</code>。每个执行计划对应若干MapReduce作业，Hive会将所有的MapReduce作业都一一提交到YARN中，<strong>由YARN去负责创建MapReduce作业对应的子任务任务</strong>，并协调它们的运行。YARN创建的子任务会与HDFS进行交互，获取计算所需的数据，计算完成后将最终的结果写入HDFS或者本地。</p>
+<p>从整个Hive运行作业的过程我们可以知道Hive自身主要包含3个部分：</p>
+<ol>
+<li>第一部分是客户端（Client）</li>
+<li>第二部分是HiveServer2</li>
+<li>第三部分是元数据以及元数据服务。</li>
+</ol>
+<h3 id="12-关于hive的元数据">1.2 关于Hive的元数据<a href="#12-关于hive的元数据" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Hive的元数据保存在Hive的metastore数据中，里面记录着Hive数据库、表、分区和列的一些当前状态信息，<strong>通过收集这些状态信息，可以帮助我们更好地监控Hive 数据库当前的状态</strong>，提前感知可能存在的问题；可以帮助基于成本代价的SQL 查询优化，做更为正确的自动优化操作。</p>
+<p>Hive的元数据主要分为5个大部分：</p>
+<ol>
+<li>数据库相关的元数据</li>
+<li>表相关的元数据</li>
+<li>分区相关的元数据</li>
+<li>文件存储相关的元数据</li>
+<li>其他（事务信息、锁信息以及权限相关信息）</li>
+</ol>
+<h3 id="13-hive的知识体系">1.3 Hive的知识体系<a href="#13-hive的知识体系" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>下面一张图摘自《Hive性能调优实战》，全面的展示了Hive的知识体系，其实这篇文章算是我阅读这本书的读书笔记吧，很多知识点讲的比较详细我就直接摘抄下来了。</p>
+<p><img src="https://res.weread.qq.com/wrepub/epub_27559616_257" alt="https://res.weread.qq.com/wrepub/epub_27559616_257"></p>
+<h2 id="二yarn详解">二、YARN详解<a href="#二yarn详解" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="21-传统多线程编程和调度框架的对比">2.1 传统多线程编程和调度框架的对比<a href="#21-传统多线程编程和调度框架的对比" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>在单机程序设计中， 为了快速处理一个大的数据集， 通常采用<strong>多线程并行编程</strong>。大体流程如下 ：
+先由操作系统启动一个主线程， 由它负责数据切分、 任务分配、 子线程启动和销毁等工作， 而各个子线程只负责计算自己的数据， 当所有子线程处理完数据后， 主线程再退出。</p>
+<p>而，在生产环境中的大数据集群，所有作业或系统运行所需的资源，都不是直接向操作系统申请，而是交由资源管理器和调度框架代为申请。<code>每个作业或系统所需的资源都是由资源管理和调度框架统一分配、协调</code>。在业界中扮演这一角色的组件有YARN、Mesos等。</p>
+<h3 id="22-yarn的优点">2.2 YARN的优点<a href="#22-yarn的优点" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>YARN作为资源调用框架有着如下优点：</p>
+<ol>
+<li><strong>提高系统的资源利用率</strong>。不同系统和不同业务在不同的时间点对硬件资源的需求是不一样的，例如一些离线业务通常在凌晨时间启动，除了这个阶段的离线业务对资源的占用比较高，其他时间段基本是空闲的，通过统一资源调度和协调，将这些时间段的资源分配给其他系统。不仅计算资源可以共享，由于允许多套系统部署在一个集群，也能增加系统存储资源的利用率。</li>
+<li><strong>协调不同作业/不同系统的资源，减少不同作业和不同系统之间的资源争抢</strong>。例如通过资源管理和调度框架并通过一定的资源分配策略，能够保证在多作业情况下，各个作业都能够得到足够的资源得以运行，而不会出现一个作业占用所有资源，导致其他作业全部阻塞的情况。</li>
+<li><strong>增强系统扩展性</strong>。资源管理和调度框架，允许硬件资源的动态伸缩，而不会影响作业的运行。</li>
+<li>资源调度与管理工具把控着资源的分配和任务的调度，直接影响程序的运行效率。如果任务得到资源少了，必将影响自身的程序运行效率，如果任务占用过多资源，在集群任务运行高峰期，必然导致挤占其他任务运行所需的资源。</li>
+</ol>
+<p>那么如何利用资源与调度管理工具？作为大数据集群的使用者，基于Hive 做业务的开发者要高效地利用资源与调度管理工具，需要知道两方面的内容：</p>
+<ul>
+<li>YARN运行的基本组成和工作原理，能够基本理清程序运行的整体流程，知道哪些过程或者配置可能成为瓶颈，可以先不用了解，但一定要有意识。</li>
+<li>YARN资源调度与分配算法。</li>
+</ul>
+<blockquote>
+<p>这里有个感触就是，对学习任何一个大数据组件是不是也应该采用这种方式呢？第一要熟悉该组件的<code>基本组成和工作原理</code>，对其大体的<code>工作流程</code>要熟悉。当然了看一遍是不可能全部记住以及全部消化和理解的。不如多看几遍，很多陌生的名词头一次看或许印象不深，但是如果多看几遍甚至发到技术群讨论一下，印象和理解或许更加深刻，也有助于对该技术组件的学习。</p>
+<p>由此引申HDFS、MapReduce、Kafka、HBase、Spark、Flink&hellip;都按照这种套路来学，会不会有触类旁通的效果呢？</p>
+</blockquote>
+<h3 id="23-yarn的基本组成">2.3 YARN的基本组成<a href="#23-yarn的基本组成" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>YARN的基本结构由一个ResourceManager与多个NodeManager组成。ResourceManager负责对NodeManager所持有的资源进行统一管理和调度。当在处理一个作业时ResourceManager<code>会在NodeManager所在节点</code>创建一全权负责单个作业运行和监控的程序<strong>ApplicationMaster</strong>。</p>
+<ol>
+<li>
+<p>ResouceManager（简称RM）</p>
+<blockquote>
+<p>资源管理器负责整个集群资源的调度，该组件由两部分构成：调度器（Scheduler）和ApplicationsMaster（简称ASM）。调度器会根据特定调度器实现调度算法，结合作业所在的队列资源容量，将资源按调度算法分配给每个任务。分配的资源将用容器（container）形式提供，<code>容器是一个相对封闭独立的环境</code>，已经将CPU、内存及任务运行所需环境条件封装在一起。通过容器可以很好地限定每个任务使用的资源量。YARN调度器目前在生产环境中被用得较多的有两种：能力调度器（CapacityScheduler）和公平调度器（Fair Scheduler）。（还有一种FIFO Scheduler）</p>
+</blockquote>
+</li>
+<li>
+<p>ApplicationMaster（简称AM）</p>
+<blockquote>
+<p><code>每个提交到集群的作业（job）都会有一个与之对应的AM 来管理</code>。它负责进行数据切分，并为当前应用程序向RM 去申请资源，当申请到资源时会和NodeManager 通信，启动容器并运行相应的任务。此外，AM还负责监控任务（task）的状态和执行的进度。</p>
+</blockquote>
+</li>
+<li>
+<p>NodeManage（简称NM）</p>
+<blockquote>
+<p>NodeManager负责管理集群中<code>单个节点的资源和任务</code>，每个节点对应一个NodeManager, NodeManager负责接收ApplicationMaster的请求启动容器，监控容器的运行状态，并监控当前节点状态及当前节点的资源使用情况和容器的运行情况，并定时回报给ResourceManager。</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="24-yarn工作流程">2.4 YARN工作流程<a href="#24-yarn工作流程" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>YARN在工作时主要会经历3个步骤：</p>
+<p>（1）<code>ResourceManager收集NodeManager反馈的资源信息</code>，将这些资源分割成若干组，在YARN中以队列表示。（2）当YARN接收用户提交的作业后，会尝试为作业创建一个代理ApplicationMaster。</p>
+<p>（3）由ApplicationMaster<strong>将作业拆解成一个个任务</strong>（task），为每个任务申请运行所需的资源，并监控它们的运行。</p>
+<p><img src="https://res.weread.qq.com/wrepub/epub_27559616_101" alt="https://res.weread.qq.com/wrepub/epub_27559616_101"></p>
+<p>YARN在处理任务时的工作流程如下图所示。经历了以下几个步骤：</p>
+<p>（1）客户端向YARN提交一个作业（Application）。</p>
+<p>（2）作业提交后，RM根据从NM收集的资源信息，在有足够资源的节点分配一个容器，并与对应的NM进行通信，<code>要求它在该容器中启动AM</code>。</p>
+<p>（3）AM创建成功后向RM中的ASM注册自己，表示自己可以去管理一个作业（job）。</p>
+<p>（4）AM注册成功后，会对作业需要处理的数据进行切分，然后向RM申请资源，RM会根据给定的调度策略提供给请求的资源AM。</p>
+<p>（5）<strong>AM申请到资源成功后，会与集群中的NM通信，要求它启动任务</strong>。</p>
+<p>（6）NM接收到AM的要求后，根据作业提供的信息，启动对应的任务。</p>
+<p>（7）启动后的每个任务会定时向AM提供自己的状态信息和执行的进度。</p>
+<p>（8）作业运行完成后AM会向ASM注销和关闭自己。</p>
+<p><img src="https://res.weread.qq.com/wrepub/epub_27559616_102" alt="https://res.weread.qq.com/wrepub/epub_27559616_102"></p>
+<h2 id="三再谈mapreduce">三、再谈MapReduce<a href="#三再谈mapreduce" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="31-移动数据不如移动计算的大数据计算思想">3.1 移动数据不如移动计算的大数据计算思想<a href="#31-移动数据不如移动计算的大数据计算思想" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>一个完整的MapReduce任务提交到Hadoop集群，Mapper中的逻辑会<code>被分发到集群中的各个节点</code>，并读取该节点的本地数据进行处理，最后写入到本地。这种模式就是所谓的不移动数据，而只移动计算逻辑的模式。目前绝大部分的分布式计算引擎，相比于移动计算，移动数据需要消耗更多的网络I/O和磁盘I/O的资源。在进行调优时，我们借鉴这种设计方法，尽可能地减少数据在节点之间的传输。</p>
+<h3 id="32-map和reduce的工作流程">3.2 Map和Reduce的工作流程<a href="#32-map和reduce的工作流程" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Map 在读取数据时，先将数据拆分成若干数据，并读取到Map 方法中被处理。数据在输出的时候，被分成若干分区并写入内存缓存（buffer）中，内存缓存被数据填充到一定程度会溢出到磁盘并排序（缓冲区大小默认100M，数据超过80M时进行溢写操作），当Map 执行完后会将一个机器上输出的临时文件进行归并存入到HDFS中。</p>
+<p>当Reduce 启动时，会启动一个线程去读取Map 输出的数据，并写入到启动Reduce机器的内存中，在数据溢出到磁盘时会对数据进行再次排序（由此可见Reduce阶段是会有排序的）。当读取数据完成后会将临时文件进行合并，作为Reduce函数的数据源。整个过程如下图所示。</p>
+<p><img src="https://res.weread.qq.com/wrepub/epub_27559616_113" alt="https://res.weread.qq.com/wrepub/epub_27559616_113"></p>
+<h3 id="33-mapreduce整体环节的浅析">3.3 MapReduce整体环节的浅析<a href="#33-mapreduce整体环节的浅析" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>下面这张图体现的是MapReduce整体工作流程：</p>
+<p><img src="https://res.weread.qq.com/wrepub/epub_27559616_121" alt="https://res.weread.qq.com/wrepub/epub_27559616_121"></p>
+<p>一个完整的MapReduce任务提交到Hadoop集群，Reducer中的逻辑会被分发到集群中的各个节点。但是不同于Mapper读取本地文件，Reducer会去<code>拉取远程Map节点产生的数据</code>，这里必然也会涉及网络I/O 和磁盘I/O。从这里我们可以看到，如非需要对数据进行全局处理，例如全局排序，就关掉Reduce阶段的操作，可以提升程序性能。</p>
+<p>在写入到HDFS的过程中，为了下游Reducer任务<code>顺序快速拉取数据</code>，会将数据进行排序后再写入临时文件中，当整个Map 执行结束后会将临时文件归并成一个文件。如果不进行文件的排序归并，意味着下游Reducer任务拉取数据会频繁地搜索磁盘，即将顺序读变为随机读，这会对磁盘I/O产生极大的负载。</p>
+<p>Reducer任务启动后，会启动拉取数据的线程，从HDFS拉取所需要的数据。为什么不选用Mapper任务结束后直接推送到Reducer节点，这样可以节省写入到磁盘的操作，效率更高？因为采用缓存到HDFS，让Reducer主动来拉，当一个Reducer任务因为一些其他原因导致异常结束时，再启动一个新的Reducer依然能够读取到正确的数据。</p>
+<p>从HDFS拉取的数据，会先缓存到内存缓冲区，当数据达到一定的阈值后会将内存中的数据写入内存或者磁盘中的文件里。当从HDFS 拉取的数据能被预先分配的内存所容纳，数据会将内存缓存溢出的数据写入该内存中，当拉取的数据足够大时则会将数据写入文件，文件数量达到一定量级进行归并。</p>
+<h3 id="34-关于combiner">3.4 关于Combiner<a href="#34-关于combiner" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Combiner用于处理数据的聚合，但是其只发生在本地的Mapper任务阶段，因此也被称为Map端的Reducer任务。使用Combiner的初衷是为了减少Shuffle过程的数据量，减轻系统的磁盘和网络压力。（Shuffle是一项昂贵的操作）</p>
+<p>Hive中提供了另外一种聚合方式——使用散列表，每个Mapper中直接使用散列表进行聚合，而不是另起Combiner聚合任务，这样<code>避免另外起一个任务和额外的数据读写所带来的开销</code>。散列表，可以类比Java中的HashMap。</p>
+<blockquote>
+<p>通常使用Map聚合往往是为了减少Map任务的输出，减少传输到下游任务的Shuffle数据量，但如果数据经过聚合后不能明显减少，那无疑就是浪费机器的I/O资源。</p>
+</blockquote>
+<h2 id="四hdfs的基本组成">四、HDFS的基本组成<a href="#四hdfs的基本组成" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>偷个懒，不想写了&hellip;ಠ╭╮ಠ</p>
+<p>(；´д｀)ゞ</p>
+<p>༼༎ຶᴗ༎ຶ༽</p>
+<p>(′へ`、)</p>
+<h2 id="五附送今天下午骑单车去了">五、附送：今天下午骑单车去了<a href="#五附送今天下午骑单车去了" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>双脚一蹬就是13.7公里，骄傲！ㄟ( ▔, ▔ )ㄏ</p>
+
+      </div></div>
+
+  
+  
+<div class="pagination">
+    <div class="pagination__title">
+        <span class="pagination__title-h">Read other posts</span>
+        <hr />
+    </div>
+    <div class="pagination__buttons">
+        
+        <span class="button previous">
+            <a href="https://niuniu.langchao2020.tech/posts/talk-about-hbase01/">
+                <span class="button__icon">←</span>
+                <span class="button__text">浅谈HBase入门以及一些学习感悟</span>
+            </a>
+        </span>
+        
+        
+        <span class="button next">
+            <a href="https://niuniu.langchao2020.tech/posts/keep-water-for-hive/">
+                <span class="button__text">再来一道SQL题</span>
+                <span class="button__icon">→</span>
+            </a>
+        </span>
+        
+    </div>
+</div>
+
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>Copyright © 2020 牛牛ฅ^•ﻌ•^ฅ ❤️</span>
+    
+        
+      </div>
+  </div>
+</footer>
+
+<script src="https://niuniu.langchao2020.tech/assets/main.js"></script>
+<script src="https://niuniu.langchao2020.tech/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

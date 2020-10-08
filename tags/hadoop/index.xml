@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Hive on ฅ՞•ﻌ•՞ฅ要抱抱</title>
-    <link>https://niuniu.langchao2020.tech/tags/hive/</link>
-    <description>Recent content in Hive on ฅ՞•ﻌ•՞ฅ要抱抱</description>
+    <title>Hadoop on ฅ՞•ﻌ•՞ฅ要抱抱</title>
+    <link>https://niuniu.langchao2020.tech/tags/hadoop/</link>
+    <description>Recent content in Hadoop on ฅ՞•ﻌ•՞ฅ要抱抱</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Mon, 05 Oct 2020 21:12:17 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/tags/hive/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Oct 2020 21:12:17 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/tags/hadoop/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>关于Hive和YARNの读书笔记</title>
       <link>https://niuniu.langchao2020.tech/posts/helloyarn/</link>
@@ -29,40 +29,6 @@ Hive的元数据主要分为5个大部分：
  2.3 YARN的基本组成 YARN的基本结构由一个ResourceManager与多个NodeManager组成。ResourceManager负责对NodeManager所持有的资源进行统一管理和调度。当在处理一个作业时ResourceManager会在NodeManager所在节点创建一全权负责单个作业运行和监控的程序ApplicationMaster。
   ResouceManager（简称RM）
  资源管理器负责整个集群资源的调度，该组件由两部分构成：调度器（Scheduler）和ApplicationsMaster（简称ASM）。调度器会根据特定调度器实现调度算法，结合作业所在的队列资源容量，将资源按调度算法分配给每个任务。分配的资源将用容器（container）形式提供，容器是一个相对封闭独立的环境，已经将CPU、内存及任务运行所需环境条件封装在一起。通过容器可以很好地限定每个任务使用的资源量。YARN调度器目前在生产环境中被用得较多的有两种：能力调度器（CapacityScheduler）和公平调度器（Fair Scheduler）。（还有一种FIFO Scheduler）</description>
-    </item>
-    
-    <item>
-      <title>再来一道SQL题</title>
-      <link>https://niuniu.langchao2020.tech/posts/keep-water-for-hive/</link>
-      <pubDate>Sun, 04 Oct 2020 21:37:37 +0800</pubDate>
-      
-      <guid>https://niuniu.langchao2020.tech/posts/keep-water-for-hive/</guid>
-      <description>一、求每一年最高气温的那一天以及温度 1.1 数据准备 2014010114 2014010216 2014010317 2014010410 2014010506 2012010609 2012010732 2012010812 2012010919 2012011023 2001010116 2001010212 2001010310 2001010411 2001010529 2013010619 2013010722 2013010812 2013010929 2013011023 2008010105 2008010216 2008010337 2008010414 2008010516 2007010619 2007010712 2007010812 2007010999 2007011023 2010010114 2010010216 2010010317 2010010410 2010010506 2015010649 2015010722 2015010812 2015010999 2015011023 数据的含义是：2010012325表示在2010年01月23日的气温为25度。
-建表、导入数据：
-create table tempertrue(data string); load data local inpath &amp;#34;/data/soft/hive-3.2.1/mydata/tempertrue.txt&amp;#34; into table tempertrue; ※ 1.2 求每一年最高气温的那一天以及温度 首先，先创建一个临时视图，把data分割日期和温度两个字段。
-create view temp as select substr(data, 1, 8) as ttime, substr(data, 9) as tep from tempertrue; 利用开窗函数、substr函数对data分割后分组并排序：</description>
-    </item>
-    
-    <item>
-      <title>Hive认识我的第一天</title>
-      <link>https://niuniu.langchao2020.tech/posts/hive-meeting/</link>
-      <pubDate>Thu, 01 Oct 2020 17:08:58 +0800</pubDate>
-      
-      <guid>https://niuniu.langchao2020.tech/posts/hive-meeting/</guid>
-      <description>一、Hive简介 1.1 什么是Hive Hive官网给出的定义是：“The Apache Hive ™ data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.”
-我粗糙的理解是，Hive是一个类似Hadoop（集群）的客户端，所谓客户端在手天下我有。就好比你拿到了电视的遥控器，想怎么操作电视就怎么操作电视，比如换台。实际上Hive使用的是类似SQL的语句去操作（离线数据分析、数据管理&amp;hellip;）HDFS上的数据，本质是将SQL语句转化成MapReduce作业。
-1.2 为什么要使用Hive Hive的本质是将SQL转化成MapReduce作业，那么直接使用MapReduce不就好了，何必转一个弯呢？因为Hive更方便啊，它是遥控器！MapReduce编程模型还是有一定门槛的，代码量多而且只有map和reduce过程，实现复杂的计算逻辑则难度相当之大。
-而，Hive能够使得不会编程的数据开发人员也具备操作分析HDFS上数据的能力，只要你SQL写的好、写的妙。
-1.3 Hive有什么特点 先说缺点，这样记得更牢固。
-首先，慢，而且不是一般的慢。当然这是对少量数据而言，比如查询十多行的数据需要100秒左右的时间，这哪能忍。
-其次，Hive不太支持记录级别的增删改操作。注意是不太支持，你要是真想用还是可以用的，只是要选择对应的Hive版本。
-最后，Hive不支持事务。它主要是用来做OLAP（联机分析处理）的，而传统数据库是用来做OLTP（联机事务处理）的，这也是它俩的本质区别之一。
-优点，我是记不住，正经人谁记某个东西的优点啊。
-首先，延展性好。传统SQL能做的它也能做，传统SQL不能做的它还是能做。比如Hive支持自定义函数UDF，开发人员可以根据自己的需求来实现自定义函数。
-其次，拥有HDFS的优点。HDFS的优点也算是它的优点，比如横向扩展。比如加机器的时候是不会对Hive造成影响的，连重启服务也不需要。
-最后，良好的容错性。这一点是硬凑的，我理解不到这一层。
-稍微总结一下：Hive只适合用来做海量数据离线统计分析，也是数据仓库实现常用的技术之一。
-二、Hive的架构  用户接口：包括CLI、JDBC等方式（也就是客户端） 元数据MetaStore：Hive通常将元数据信息保存在传统关系型数据库中，如MySQL，但默认是放在Derby数据库中（这种数据库不支持多用户同时访问）。元数据信息包括：库名、表名、表所属的库名、表的列名/分区字段，表的属性（是否为外部表）、表中数据所在的HDFS目录等信息。【由此可见，元数据的重要性不言而喻。】 Driver：包括：解释器、编译器、优化器、执行器。Hive SQL语句从词法分析、语法分析、编译、优化以及查询计划生成，查询计划存储在HDFS上，MapReduce负责调用执行；  解释器：将用户输入的Hive SQL转化成抽象语法树（AST） 编译器：将AST编译成逻辑执行计划 优化器：将逻辑执行计划进行优化 执行器：优化后的逻辑执行计划转换成可以运行的物理执行计划    三、Hive中数据组织方式 3.</description>
     </item>
     
   </channel>

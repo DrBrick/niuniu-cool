@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>浅谈HBase入门以及一些学习感悟 :: ฅ՞•ﻌ•՞ฅ要抱抱</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一、前言 1.1 关于HBase我早就想学了 刚接触大数据的时候就听说过这些名词，Hadoop、HDFS、MapReduce、YARN、Hive、Spark、Flink&amp;hellip;.等，其中也听说过今天的主角——HBase。看到它的简要介绍时不禁发出感叹，好吊啊！能够存储几亿行*几百万列的数据量，当时截图给网友看的时候我都惊呆了。
+后面也陆续看了一些入门级别的HBase的教程，脑子里也有一些关于它的印象，什么RegionServer啊，Master啥的，心里也惦记着什么时候来学一学它。
+1.2 之前做了些什么？ 相比于其它组件，我还是算比较早接触到HBase的，从安装好了Hadoop集群之后就把HBase分布式数据库也给安装起来了，安装好了之后打开Web监控页面，写个test表建表语句，Web端看看瞧瞧也就算完成任务了。后面就去学习其他大数据组件去了，什么Hive、Spark、Flink、数据仓库、Kafka轮着来，就是没有轮到HBase，于是HBase的学习就一拖再拖&amp;hellip;
+1.3 为什么放缓学习HBase的进度？ 偶然的机会进入了一位网课老师的QQ学习内部群，是关于入行大数据的课程的学习群。我在群里有问到他课程体系中怎么没有HBase，他说HBase在这个系列课程中用的不是很多，追求精简就直接把HBase这块的内容给删减掉了。还有一个原因是传统JavaWeb方向也有用到HBase服务的，所以给我的感觉是HBase也重要但是不如其它大数据组件重要，于是就没有把重心放在HBase的学习上，不过我倒是也有在无聊的时候看看它，有时候技术交流群里面也会谈到HBase，也能顺便学到一些知识。
+1.4 今天开始学习HBase 昨天晚上躺床上我就想着今天应该把HBase给学了，因为看到很多小伙伴在群里讨论HBase的相关技术，我一句话也插不上，简直白瞎，哈哈( • ̀ω•́ )✧。在慕课网找了两门关于HBase的免费课程，一个偏入门，一个偏存储原理，而今天的这则笔记主要摘自HBase入门的视频课程。
+二、HBase入门 2.0 重要的事情才标0 今天在视频中听到老师说了这么一句话“学习任何一门技术之前需要搞清楚意义在哪里，学完之后它能帮助我们解决什么问题，和其它相类似的技术有什么区别。”，这句话很快就被我捕捉到了，我觉得这句话对我帮助很大很大。目前为止也学了蛮多技术了，从前端到后端再到大数据，每个框架每门语言都有着特定的用途，这也是它们在软件开发中的定位。比如Python虽然也能搞Web后端，但是远不如Java搞后端；比如JavaScript天生为Web页面而生，Go语言优秀的性能使得它完美的适合用于处理高并发、区块链的开发之中&amp;hellip;.
+于是我又想到了——HBase在Hadoop大数据体系的定义和定位。为什么要考虑这个，换个思路，你是否也要考虑你在这个世界的定义和定位？
+2.1 HBase的应用场景及特点  面向列：HBase是面向列的存储，支持独立检索 多版本存储：每一个列的数据存储有多个Version 稀疏性：表中为空的列并不占用存储空间，因此表可以设计的非常稀疏 良好的扩展性：数据底层依赖于HDFS 高可靠性：WAL预写日志机制保证了数据写入时不会因为集群出现异常而导致数据丢失或损坏 高性能：底层的LSM日志合并树和RowKey有序排序的独特架构特性，使得HBase具有非常高的写入性能  2.2 HBase架构体系与设计模型 HBase强烈依赖于两个外部服务：HDFS和Zookeeper。主要包含两个进程：Master、RegionServer（在Linux系统上实际实现的进程分别是：HMaster、HRegionServer；
+（本想在这里插入一张HBase体系架构图，但是考虑到Typora插入图片并发布到网上可能会耗费我很多时间，而且今天的时间已经不多了，所以打算明天再来解决插入图片的问题）。
+ 利用Gitee&#43;PicGo搞了一个免费的Hugo博客图床服务，不得不说Gitee真的很良心，免费提供5G存储空间，大赞！在Typora中设置图床服务为PicGo，在你把图片粘贴到编辑器中时Typora会通过PicGo自动把图片上传到Gitee上，图片链接全网可访问！
+ 在HBase中有一个Master和多个RegionServer服务，其中RegionServer管理多个Region，Region是HBase实现高性能和负载均衡的基本单位。一个Region含有多个列族，每个列族下有多个列。
+关于HBase更多的底层存储细节今天在此不表，打算明天在写一则关于HBase存储原理的博客，进一步强化自己对HBase的理解。比如为什么HBase插入性能很高，为什么随机读的速度很快等常见问题都可以被轻松的回答&amp;hellip;&amp;hellip;(给自己挖坑)！
+2.3 HBase数据模型举例说明 关于列族：
+ 一张表的列族不会超过5个 每个列族中的列数没有限制 列只有插入数据后存在 列在列族中是有序的（字典序）  关于Region：
+ 每个Region管理若干条数据记录 一个RegionServer中有多个Region，且不同的Region可能会分不到不同的RegionServer上 Region中的数据和其它Region中的数据是互斥的  2.4 HBase表和传统关系型数据表结构的对比 在HBase中，列可以动态增加、数据可自动切分（一个Region达到阈值大小会自动切分成多个Region）、高并发读写，但不支持条件查询。
+而传统关系型数据库支持复杂的条件查询，对事务的支持很好，但是不具备HBase所具有的优点。
+2.5 HBase的安装部署 安装部署就不赘述了，右手就能做，正经人谁去老老实实的把安装部署的全过程贴出来啊！不过需要值得注意的是安装HBase之前需要做这么几件事：
+ JDK1.8以上的安装 Hadoop的安装 Zookeeper的安装 hbase-env.sh的配置 hbase-site.xml的配置 别忘记了，web监控页面端口是16010  2." />
+<meta name="keywords" content="niuniu, flink, spark, hadoop" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://niuniu.langchao2020.tech/posts/talk-about-hbase01/" />
+
+
+
+
+<link rel="stylesheet" href="https://niuniu.langchao2020.tech/assets/style.css">
+
+  <link rel="stylesheet" href="https://niuniu.langchao2020.tech/assets/green.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://niuniu.langchao2020.tech/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="https://niuniu.langchao2020.tech/img/favicon/green.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="浅谈HBase入门以及一些学习感悟 :: ฅ՞•ﻌ•՞ฅ要抱抱">
+<meta property="og:description" content="学习任何一门技术之前需要搞清楚意义在哪里，学完之后它能帮助我们解决什么问题，和其它相类似的技术有什么区别。" />
+<meta property="og:url" content="https://niuniu.langchao2020.tech/posts/talk-about-hbase01/" />
+<meta property="og:site_name" content="浅谈HBase入门以及一些学习感悟" />
+
+  
+    <meta property="og:image" content="https://niuniu.langchao2020.tech/img/favicon/green.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+  <meta property="article:section" content="" />
+
+  <meta property="article:section" content="" />
+
+
+  <meta property="article:published_time" content="2020-10-06 22:34:18 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="green">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    牛牛ฅ^•ﻌ•^ฅ
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/archive">Archive</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/">Home</a></li>
+      
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+      
+        <li><a href="/archive">Archive</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://niuniu.langchao2020.tech/posts/talk-about-hbase01/">浅谈HBase入门以及一些学习感悟</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-06 
+      </span>
+    
+    
+    <span class="post-author">:: niuniu</span>
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://niuniu.langchao2020.tech/tags/hbase/">HBase</a>&nbsp;
+    
+    #<a href="https://niuniu.langchao2020.tech/tags/"></a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="一前言">一、前言<a href="#一前言" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="11-关于hbase我早就想学了">1.1 关于HBase我早就想学了<a href="#11-关于hbase我早就想学了" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>刚接触大数据的时候就听说过这些名词，Hadoop、HDFS、MapReduce、YARN、Hive、Spark、Flink&hellip;.等，其中也听说过今天的主角——HBase。看到它的简要介绍时不禁发出感叹，好吊啊！能够存储几亿行*几百万列的数据量，当时截图给网友看的时候我都惊呆了。</p>
+<p>后面也陆续看了一些入门级别的HBase的教程，脑子里也有一些关于它的印象，什么RegionServer啊，Master啥的，心里也惦记着什么时候来学一学它。</p>
+<h3 id="12-之前做了些什么">1.2 之前做了些什么？<a href="#12-之前做了些什么" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>相比于其它组件，我还是算比较早接触到HBase的，从安装好了Hadoop集群之后就把HBase分布式数据库也给安装起来了，安装好了之后打开Web监控页面，写个test表建表语句，Web端看看瞧瞧也就算完成任务了。后面就去学习其他大数据组件去了，什么Hive、Spark、Flink、数据仓库、Kafka轮着来，就是没有轮到HBase，于是HBase的学习就一拖再拖&hellip;</p>
+<h3 id="13-为什么放缓学习hbase的进度">1.3 为什么放缓学习HBase的进度？<a href="#13-为什么放缓学习hbase的进度" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>偶然的机会进入了一位网课老师的QQ学习内部群，是关于入行大数据的课程的学习群。我在群里有问到他课程体系中怎么没有HBase，他说HBase在这个系列课程中用的不是很多，追求精简就直接把HBase这块的内容给删减掉了。还有一个原因是传统JavaWeb方向也有用到HBase服务的，所以给我的感觉是HBase也重要但是不如其它大数据组件重要，于是就没有把重心放在HBase的学习上，不过我倒是也有在无聊的时候看看它，有时候技术交流群里面也会谈到HBase，也能顺便学到一些知识。</p>
+<h3 id="14-今天开始学习hbase">1.4 今天开始学习HBase<a href="#14-今天开始学习hbase" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>昨天晚上躺床上我就想着今天应该把HBase给学了，因为看到很多小伙伴在群里讨论HBase的相关技术，我一句话也插不上，简直白瞎，哈哈( • ̀ω•́ )✧。在慕课网找了两门关于HBase的免费课程，一个偏入门，一个偏存储原理，而今天的这则笔记主要摘自HBase入门的视频课程。</p>
+<h2 id="二hbase入门">二、HBase入门<a href="#二hbase入门" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="20-重要的事情才标0">2.0 重要的事情才标0<a href="#20-重要的事情才标0" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>今天在视频中听到老师说了这么一句话“<strong>学习任何一门技术之前需要搞清楚意义在哪里，学完之后它能帮助我们解决什么问题，和其它相类似的技术有什么区别</strong>。”，这句话很快就被我捕捉到了，我觉得这句话对我帮助很大很大。目前为止也学了蛮多技术了，从前端到后端再到大数据，每个框架每门语言都有着特定的用途，这也是它们在软件开发中的定位。比如Python虽然也能搞Web后端，但是远不如Java搞后端；比如JavaScript天生为Web页面而生，Go语言优秀的性能使得它完美的适合用于处理高并发、区块链的开发之中&hellip;.</p>
+<p>于是我又想到了——HBase在Hadoop大数据体系的定义和定位。为什么要考虑这个，换个思路，<strong>你是否也要考虑你在这个世界的定义和定位</strong>？</p>
+<h3 id="21-hbase的应用场景及特点">2.1 HBase的应用场景及特点<a href="#21-hbase的应用场景及特点" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<ul>
+<li>面向列：HBase是面向列的存储，支持独立检索</li>
+<li>多版本存储：每一个列的数据存储有多个Version</li>
+<li>稀疏性：表中为空的列并不占用存储空间，因此表可以设计的<code>非常稀疏</code></li>
+<li>良好的扩展性：数据底层依赖于HDFS</li>
+<li>高可靠性：<code>WAL预写日志</code>机制保证了数据写入时不会因为集群出现异常而导致数据丢失或损坏</li>
+<li>高性能：底层的<code>LSM日志合并树和RowKey有序排序</code>的独特架构特性，使得HBase具有非常高的<code>写入性能</code></li>
+</ul>
+<h3 id="22-hbase架构体系与设计模型">2.2 HBase架构体系与设计模型<a href="#22-hbase架构体系与设计模型" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>HBase强烈依赖于两个外部服务：HDFS和Zookeeper。主要包含两个进程：Master、RegionServer（在Linux系统上实际实现的进程分别是：HMaster、HRegionServer；</p>
+<p>（本想在这里插入一张HBase体系架构图，但是考虑到Typora插入图片并发布到网上可能会耗费我很多时间，而且今天的时间已经不多了，所以打算明天再来解决插入图片的问题）。</p>
+<blockquote>
+<p>利用Gitee+PicGo搞了一个免费的Hugo博客图床服务，不得不说Gitee真的很良心，免费提供5G存储空间，大赞！在Typora中设置图床服务为PicGo，在你把图片粘贴到编辑器中时Typora会通过PicGo自动把图片上传到Gitee上，图片链接全网可访问！</p>
+</blockquote>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201007134106.png" alt="img"></p>
+<p>在HBase中有一个Master和多个RegionServer服务，其中RegionServer管理多个Region，Region是HBase实现高性能和负载均衡的基本单位。一个Region含有多个列族，每个列族下有多个列。</p>
+<p>关于HBase更多的底层存储细节今天在此不表，打算明天在写一则关于HBase存储原理的博客，进一步强化自己对HBase的理解。比如为什么HBase插入性能很高，为什么随机读的速度很快等常见问题都可以被轻松的回答&hellip;&hellip;(给自己挖坑)！</p>
+<h3 id="23-hbase数据模型举例说明">2.3 HBase数据模型举例说明<a href="#23-hbase数据模型举例说明" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>关于<code>列族</code>：</p>
+<ol>
+<li>一张表的列族不会超过5个</li>
+<li>每个列族中的列数没有限制</li>
+<li>列只有插入数据后存在</li>
+<li>列在列族中是有序的（字典序）</li>
+</ol>
+<p>关于<code>Region</code>：</p>
+<ol>
+<li>每个Region管理若干条数据记录</li>
+<li>一个RegionServer中有多个Region，且不同的Region可能会分不到不同的RegionServer上</li>
+<li>Region中的数据和其它Region中的数据是<code>互斥</code>的</li>
+</ol>
+<h3 id="24-hbase表和传统关系型数据表结构的对比">2.4 HBase表和传统关系型数据表结构的对比<a href="#24-hbase表和传统关系型数据表结构的对比" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>在HBase中，列可以动态增加、数据可自动切分（一个Region达到阈值大小会自动切分成多个Region）、高并发读写，但不支持条件查询。</p>
+<p>而传统关系型数据库支持复杂的条件查询，对事务的支持很好，但是不具备HBase所具有的优点。</p>
+<h3 id="25-hbase的安装部署">2.5 HBase的安装部署<a href="#25-hbase的安装部署" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>安装部署就不赘述了，右手就能做，正经人谁去老老实实的把安装部署的全过程贴出来啊！不过需要值得注意的是安装HBase之前需要做这么几件事：</p>
+<ul>
+<li><input disabled="" type="checkbox"> JDK1.8以上的安装</li>
+<li><input disabled="" type="checkbox"> Hadoop的安装</li>
+<li><input disabled="" type="checkbox"> Zookeeper的安装</li>
+<li><input disabled="" type="checkbox"> hbase-env.sh的配置</li>
+<li><input disabled="" type="checkbox"> hbase-site.xml的配置</li>
+<li><input disabled="" type="checkbox"> 别忘记了，web监控页面端口是16010</li>
+</ul>
+<h3 id="26-hbase常用命令">2.6 HBase常用命令<a href="#26-hbase常用命令" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>正经人一般不贴这玩意儿，什么诸如list、scan、drop、create、delete、enable、disable、describe、is_enabled&hellip;啥的，就不一一列举出来了，在HBase shell中敲一个help就有一大坨指导你怎么用的东西了，很简单。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">hbase<span style="color:#f92672">(</span>main<span style="color:#f92672">)</span>:024:0&gt; help <span style="color:#e6db74">&#39;create&#39;</span>
+Creates a table. Pass a table name, and a set of column family
+specifications <span style="color:#f92672">(</span>at least one<span style="color:#f92672">)</span>, and, optionally, table configuration.
+Column specification can be a simple string <span style="color:#f92672">(</span>name<span style="color:#f92672">)</span>, or a dictionary
+<span style="color:#f92672">(</span>dictionaries are described below in main help output<span style="color:#f92672">)</span>, necessarily
+including NAME attribute.
+Examples:
+
+Create a table with namespace<span style="color:#f92672">=</span>ns1 and table qualifier<span style="color:#f92672">=</span>t1
+  hbase&gt; create <span style="color:#e6db74">&#39;ns1:t1&#39;</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f1&#39;</span>, VERSIONS <span style="color:#f92672">=</span>&gt; 5<span style="color:#f92672">}</span>
+
+Create a table with namespace<span style="color:#f92672">=</span>default and table qualifier<span style="color:#f92672">=</span>t1
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f1&#39;</span><span style="color:#f92672">}</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f2&#39;</span><span style="color:#f92672">}</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f3&#39;</span><span style="color:#f92672">}</span>
+  hbase&gt; <span style="color:#75715e"># The above in shorthand would be the following:</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#e6db74">&#39;f1&#39;</span>, <span style="color:#e6db74">&#39;f2&#39;</span>, <span style="color:#e6db74">&#39;f3&#39;</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f1&#39;</span>, VERSIONS <span style="color:#f92672">=</span>&gt; 1, TTL <span style="color:#f92672">=</span>&gt; 2592000, BLOCKCACHE <span style="color:#f92672">=</span>&gt; true<span style="color:#f92672">}</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f1&#39;</span>, CONFIGURATION <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;hbase.hstore.blockingStoreFiles&#39;</span> <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;10&#39;</span><span style="color:#f92672">}}</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f1&#39;</span>, IS_MOB <span style="color:#f92672">=</span>&gt; true, MOB_THRESHOLD <span style="color:#f92672">=</span>&gt; 1000000, MOB_COMPACT_PARTITION_POLICY <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;weekly&#39;</span><span style="color:#f92672">}</span>
+
+Table configuration options can be put at the end.
+Examples:
+
+  hbase&gt; create <span style="color:#e6db74">&#39;ns1:t1&#39;</span>, <span style="color:#e6db74">&#39;f1&#39;</span>, SPLITS <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;10&#39;</span>, <span style="color:#e6db74">&#39;20&#39;</span>, <span style="color:#e6db74">&#39;30&#39;</span>, <span style="color:#e6db74">&#39;40&#39;</span><span style="color:#f92672">]</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#e6db74">&#39;f1&#39;</span>, SPLITS <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;10&#39;</span>, <span style="color:#e6db74">&#39;20&#39;</span>, <span style="color:#e6db74">&#39;30&#39;</span>, <span style="color:#e6db74">&#39;40&#39;</span><span style="color:#f92672">]</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#e6db74">&#39;f1&#39;</span>, SPLITS_FILE <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;splits.txt&#39;</span>, OWNER <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;johndoe&#39;</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f1&#39;</span>, VERSIONS <span style="color:#f92672">=</span>&gt; 5<span style="color:#f92672">}</span>, METADATA <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span> <span style="color:#e6db74">&#39;mykey&#39;</span> <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;myvalue&#39;</span> <span style="color:#f92672">}</span>
+  hbase&gt; <span style="color:#75715e"># Optionally pre-split the table into NUMREGIONS, using</span>
+  hbase&gt; <span style="color:#75715e"># SPLITALGO (&#34;HexStringSplit&#34;, &#34;UniformSplit&#34; or classname)</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#e6db74">&#39;f1&#39;</span>, <span style="color:#f92672">{</span>NUMREGIONS <span style="color:#f92672">=</span>&gt; 15, SPLITALGO <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;HexStringSplit&#39;</span><span style="color:#f92672">}</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#e6db74">&#39;f1&#39;</span>, <span style="color:#f92672">{</span>NUMREGIONS <span style="color:#f92672">=</span>&gt; 15, SPLITALGO <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;HexStringSplit&#39;</span>, REGION_REPLICATION <span style="color:#f92672">=</span>&gt; 2, CONFIGURATION <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;hbase.hregion.scan.loadColumnFamiliesOnDemand&#39;</span> <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;true&#39;</span><span style="color:#f92672">}}</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#e6db74">&#39;f1&#39;</span>, <span style="color:#f92672">{</span>SPLIT_ENABLED <span style="color:#f92672">=</span>&gt; false, MERGE_ENABLED <span style="color:#f92672">=</span>&gt; false<span style="color:#f92672">}</span>
+  hbase&gt; create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#f92672">{</span>NAME <span style="color:#f92672">=</span>&gt; <span style="color:#e6db74">&#39;f1&#39;</span>, DFS_REPLICATION <span style="color:#f92672">=</span>&gt; 1<span style="color:#f92672">}</span>
+
+You can also keep around a reference to the created table:
+
+  hbase&gt; t1 <span style="color:#f92672">=</span> create <span style="color:#e6db74">&#39;t1&#39;</span>, <span style="color:#e6db74">&#39;f1&#39;</span>
+
+Which gives you a reference to the table named <span style="color:#e6db74">&#39;t1&#39;</span>, on which you can <span style="color:#66d9ef">then</span>
+call methods.
+
+</code></pre></div><p>没错，我就是凑字数的，不服来打我啊ヾ(•ω•`。)</p>
+<h2 id="三小结一下">三、小结一下<a href="#三小结一下" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="31-关于实操性的东西">3.1 关于实操性的东西<a href="#31-关于实操性的东西" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>比如常见命令的时候真的没有必要去死记硬背，要智慧的借助工具来完成自己的目的。比如前面提到的shell界面敲一个<code>help</code>就能够解决我们很多关于操作性的命令。我们应该把有限的精力和时间投入到无限的学习之中，学习什么呢？学习如何学习，也就是学习智慧。</p>
+<h3 id="32-思考--动手">3.2 思考 &gt; 动手<a href="#32-思考--动手" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>以前我学习的时候喜欢边学边做笔记，所以打字速度算是比较快的，但是学完某个东西之后却发现除了留下死水一般的笔记之外<code>什么也没有得到</code>。什么原因？我觉得这是思维上的懒惰所导致的，大脑不去思考只喜欢做机械性的事情，比如抄笔记。其实学习更重要的是体会与理解，体会老师说的理解书上写的视频中放的&hellip;，正所谓笔记易得，知识难学。</p>
+<h3 id="33-自顶向下由外而内的学习方法">3.3 自顶向下，由外而内的学习方法<a href="#33-自顶向下由外而内的学习方法" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>学过计算机网络的boys肯定知道有一本很有名的书，叫《计算机网络——自顶向下方法》。很多年过去了，现在突然觉得自顶向下的学习方法真的很受用，它能使你以一种俯视的角度去看待某个东西。越顶层越接近用户，越底层越接近计算机，如果一开始就是学习距离用户很遥远的东西会产生很强烈的挫败感。因为你没法和知识产生共鸣，觉得这个东西学了对我好像也没什么用处，死记硬背记住它那更是生不如死，着实痛苦。</p>
+<p>比如关于HBase采用自顶向下，由外而内的学习方法，你可以学到：从<code>LSM日志合并树</code>这一条主线，<code>分层次</code>的去学习HBase的存储原理，你会豁然开朗。（比如Level 0,就引申出了Store、MemStore、WAL、StoreFile等重要的概念。）因为学习的自始至终过程你都是抓住了主线的，一层一层的剥开它的心，彻底走进它的心房。这个过程是很自然的，很舒畅的甚至是很开心的，并不会产生一种强烈的不愉快感。</p>
+<p>在此引用视频中老师的几句话，我觉得对我的启发很大对我十分有帮助：</p>
+<blockquote>
+<ul>
+<li>首先从<code>高层次</code>的思想上来看HBase 的存储思想。(LSM存储思想）</li>
+<li>看似很复杂的工作流程<code>经过拆分讲解</code>其实也不是特别的难懂；</li>
+</ul>
+</blockquote>
+<h3 id="34-该止笔了">3.4 该止笔了<a href="#34-该止笔了" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>今天只剩下20分钟不到的时间了，等会还要把写好的文章编译上传到Github，那今天的任务就算完成了。这篇博客居然差不多有3000千字，写了一个多小时，<strong>侧重点还是关于学习的感悟上</strong>，具体知识点的记录还是比较少。考虑到时间的问题，打算明天在写一篇更加深入的HBase文章——关于其存储原理的具体剖析。当然了，这些也是我看视频学习整理之后的笔记，并加上自己的学习感悟和理解，对自己学习如何学习肯定有很大的帮助的~</p>
+<p>最后来点颜文字表情吧：）</p>
+<p>＃〓§〓〓〓〓〓§〓〓〓〓〓〓§〓〓〓〓〓§〓＃
+　　↓　　　　　↓　　　　　　↓　　　　　↓
+　☆★☆　　　☆★☆　　　　☆★☆　　　☆★☆
+☆　祝　☆　☆　你　☆　　☆　幸　☆　☆　福　☆
+　☆★☆　　　☆★☆　　　　☆★☆　　　☆★☆
+　　↓　　　　　↓　　　　　　↓　　　　　↓
+　　※　　　　　※　　　　　　※　　　　　※</p>
+
+      </div></div>
+
+  
+  
+<div class="pagination">
+    <div class="pagination__title">
+        <span class="pagination__title-h">Read other posts</span>
+        <hr />
+    </div>
+    <div class="pagination__buttons">
+        
+        <span class="button previous">
+            <a href="https://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/">
+                <span class="button__icon">←</span>
+                <span class="button__text">HBase建表设计原则和优化</span>
+            </a>
+        </span>
+        
+        
+        <span class="button next">
+            <a href="https://niuniu.langchao2020.tech/posts/helloyarn/">
+                <span class="button__text">关于Hive和YARNの读书笔记</span>
+                <span class="button__icon">→</span>
+            </a>
+        </span>
+        
+    </div>
+</div>
+
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>Copyright © 2020 牛牛ฅ^•ﻌ•^ฅ ❤️</span>
+    
+        
+      </div>
+  </div>
+</footer>
+
+<script src="https://niuniu.langchao2020.tech/assets/main.js"></script>
+<script src="https://niuniu.langchao2020.tech/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

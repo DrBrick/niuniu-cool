@@ -48,6 +48,67 @@ HBase负责组织HDFS上的文件（HDFS只负责存储）；</description>
     </item>
     
     <item>
+      <title>浅谈HBase入门以及一些学习感悟</title>
+      <link>https://niuniu.langchao2020.tech/posts/talk-about-hbase01/</link>
+      <pubDate>Tue, 06 Oct 2020 22:34:18 +0800</pubDate>
+      
+      <guid>https://niuniu.langchao2020.tech/posts/talk-about-hbase01/</guid>
+      <description>一、前言 1.1 关于HBase我早就想学了 刚接触大数据的时候就听说过这些名词，Hadoop、HDFS、MapReduce、YARN、Hive、Spark、Flink&amp;hellip;.等，其中也听说过今天的主角——HBase。看到它的简要介绍时不禁发出感叹，好吊啊！能够存储几亿行*几百万列的数据量，当时截图给网友看的时候我都惊呆了。
+后面也陆续看了一些入门级别的HBase的教程，脑子里也有一些关于它的印象，什么RegionServer啊，Master啥的，心里也惦记着什么时候来学一学它。
+1.2 之前做了些什么？ 相比于其它组件，我还是算比较早接触到HBase的，从安装好了Hadoop集群之后就把HBase分布式数据库也给安装起来了，安装好了之后打开Web监控页面，写个test表建表语句，Web端看看瞧瞧也就算完成任务了。后面就去学习其他大数据组件去了，什么Hive、Spark、Flink、数据仓库、Kafka轮着来，就是没有轮到HBase，于是HBase的学习就一拖再拖&amp;hellip;
+1.3 为什么放缓学习HBase的进度？ 偶然的机会进入了一位网课老师的QQ学习内部群，是关于入行大数据的课程的学习群。我在群里有问到他课程体系中怎么没有HBase，他说HBase在这个系列课程中用的不是很多，追求精简就直接把HBase这块的内容给删减掉了。还有一个原因是传统JavaWeb方向也有用到HBase服务的，所以给我的感觉是HBase也重要但是不如其它大数据组件重要，于是就没有把重心放在HBase的学习上，不过我倒是也有在无聊的时候看看它，有时候技术交流群里面也会谈到HBase，也能顺便学到一些知识。
+1.4 今天开始学习HBase 昨天晚上躺床上我就想着今天应该把HBase给学了，因为看到很多小伙伴在群里讨论HBase的相关技术，我一句话也插不上，简直白瞎，哈哈( • ̀ω•́ )✧。在慕课网找了两门关于HBase的免费课程，一个偏入门，一个偏存储原理，而今天的这则笔记主要摘自HBase入门的视频课程。
+二、HBase入门 2.0 重要的事情才标0 今天在视频中听到老师说了这么一句话“学习任何一门技术之前需要搞清楚意义在哪里，学完之后它能帮助我们解决什么问题，和其它相类似的技术有什么区别。”，这句话很快就被我捕捉到了，我觉得这句话对我帮助很大很大。目前为止也学了蛮多技术了，从前端到后端再到大数据，每个框架每门语言都有着特定的用途，这也是它们在软件开发中的定位。比如Python虽然也能搞Web后端，但是远不如Java搞后端；比如JavaScript天生为Web页面而生，Go语言优秀的性能使得它完美的适合用于处理高并发、区块链的开发之中&amp;hellip;.
+于是我又想到了——HBase在Hadoop大数据体系的定义和定位。为什么要考虑这个，换个思路，你是否也要考虑你在这个世界的定义和定位？
+2.1 HBase的应用场景及特点  面向列：HBase是面向列的存储，支持独立检索 多版本存储：每一个列的数据存储有多个Version 稀疏性：表中为空的列并不占用存储空间，因此表可以设计的非常稀疏 良好的扩展性：数据底层依赖于HDFS 高可靠性：WAL预写日志机制保证了数据写入时不会因为集群出现异常而导致数据丢失或损坏 高性能：底层的LSM日志合并树和RowKey有序排序的独特架构特性，使得HBase具有非常高的写入性能  2.2 HBase架构体系与设计模型 HBase强烈依赖于两个外部服务：HDFS和Zookeeper。主要包含两个进程：Master、RegionServer（在Linux系统上实际实现的进程分别是：HMaster、HRegionServer；
+（本想在这里插入一张HBase体系架构图，但是考虑到Typora插入图片并发布到网上可能会耗费我很多时间，而且今天的时间已经不多了，所以打算明天再来解决插入图片的问题）。
+ 利用Gitee+PicGo搞了一个免费的Hugo博客图床服务，不得不说Gitee真的很良心，免费提供5G存储空间，大赞！在Typora中设置图床服务为PicGo，在你把图片粘贴到编辑器中时Typora会通过PicGo自动把图片上传到Gitee上，图片链接全网可访问！
+ 在HBase中有一个Master和多个RegionServer服务，其中RegionServer管理多个Region，Region是HBase实现高性能和负载均衡的基本单位。一个Region含有多个列族，每个列族下有多个列。
+关于HBase更多的底层存储细节今天在此不表，打算明天在写一则关于HBase存储原理的博客，进一步强化自己对HBase的理解。比如为什么HBase插入性能很高，为什么随机读的速度很快等常见问题都可以被轻松的回答&amp;hellip;&amp;hellip;(给自己挖坑)！
+2.3 HBase数据模型举例说明 关于列族：
+ 一张表的列族不会超过5个 每个列族中的列数没有限制 列只有插入数据后存在 列在列族中是有序的（字典序）  关于Region：
+ 每个Region管理若干条数据记录 一个RegionServer中有多个Region，且不同的Region可能会分不到不同的RegionServer上 Region中的数据和其它Region中的数据是互斥的  2.4 HBase表和传统关系型数据表结构的对比 在HBase中，列可以动态增加、数据可自动切分（一个Region达到阈值大小会自动切分成多个Region）、高并发读写，但不支持条件查询。
+而传统关系型数据库支持复杂的条件查询，对事务的支持很好，但是不具备HBase所具有的优点。
+2.5 HBase的安装部署 安装部署就不赘述了，右手就能做，正经人谁去老老实实的把安装部署的全过程贴出来啊！不过需要值得注意的是安装HBase之前需要做这么几件事：
+ JDK1.8以上的安装 Hadoop的安装 Zookeeper的安装 hbase-env.sh的配置 hbase-site.xml的配置 别忘记了，web监控页面端口是16010  2.</description>
+    </item>
+    
+    <item>
+      <title>关于Hive和YARNの读书笔记</title>
+      <link>https://niuniu.langchao2020.tech/posts/helloyarn/</link>
+      <pubDate>Mon, 05 Oct 2020 21:12:17 +0800</pubDate>
+      
+      <guid>https://niuniu.langchao2020.tech/posts/helloyarn/</guid>
+      <description>一、回顾Hive的架构 1.1 Hive的基本结构 在Hadoop 2.x版本以后，Hive所有运行的任务都是交由YARN来统一管理。下图所示为Hive作业的工作流程：
+客户端提交SQL作业到HiveServer2, HiveServer2会根据用户提交的SQL作业及数据库中现有的元数据信息（实际生产中存放在MySQL中）生成一份可供计算引擎执行的计划。每个执行计划对应若干MapReduce作业，Hive会将所有的MapReduce作业都一一提交到YARN中，由YARN去负责创建MapReduce作业对应的子任务任务，并协调它们的运行。YARN创建的子任务会与HDFS进行交互，获取计算所需的数据，计算完成后将最终的结果写入HDFS或者本地。
+从整个Hive运行作业的过程我们可以知道Hive自身主要包含3个部分：
+ 第一部分是客户端（Client） 第二部分是HiveServer2 第三部分是元数据以及元数据服务。  1.2 关于Hive的元数据 Hive的元数据保存在Hive的metastore数据中，里面记录着Hive数据库、表、分区和列的一些当前状态信息，通过收集这些状态信息，可以帮助我们更好地监控Hive 数据库当前的状态，提前感知可能存在的问题；可以帮助基于成本代价的SQL 查询优化，做更为正确的自动优化操作。
+Hive的元数据主要分为5个大部分：
+ 数据库相关的元数据 表相关的元数据 分区相关的元数据 文件存储相关的元数据 其他（事务信息、锁信息以及权限相关信息）  1.3 Hive的知识体系 下面一张图摘自《Hive性能调优实战》，全面的展示了Hive的知识体系，其实这篇文章算是我阅读这本书的读书笔记吧，很多知识点讲的比较详细我就直接摘抄下来了。
+二、YARN详解 2.1 传统多线程编程和调度框架的对比 在单机程序设计中， 为了快速处理一个大的数据集， 通常采用多线程并行编程。大体流程如下 ： 先由操作系统启动一个主线程， 由它负责数据切分、 任务分配、 子线程启动和销毁等工作， 而各个子线程只负责计算自己的数据， 当所有子线程处理完数据后， 主线程再退出。
+而，在生产环境中的大数据集群，所有作业或系统运行所需的资源，都不是直接向操作系统申请，而是交由资源管理器和调度框架代为申请。每个作业或系统所需的资源都是由资源管理和调度框架统一分配、协调。在业界中扮演这一角色的组件有YARN、Mesos等。
+2.2 YARN的优点 YARN作为资源调用框架有着如下优点：
+ 提高系统的资源利用率。不同系统和不同业务在不同的时间点对硬件资源的需求是不一样的，例如一些离线业务通常在凌晨时间启动，除了这个阶段的离线业务对资源的占用比较高，其他时间段基本是空闲的，通过统一资源调度和协调，将这些时间段的资源分配给其他系统。不仅计算资源可以共享，由于允许多套系统部署在一个集群，也能增加系统存储资源的利用率。 协调不同作业/不同系统的资源，减少不同作业和不同系统之间的资源争抢。例如通过资源管理和调度框架并通过一定的资源分配策略，能够保证在多作业情况下，各个作业都能够得到足够的资源得以运行，而不会出现一个作业占用所有资源，导致其他作业全部阻塞的情况。 增强系统扩展性。资源管理和调度框架，允许硬件资源的动态伸缩，而不会影响作业的运行。 资源调度与管理工具把控着资源的分配和任务的调度，直接影响程序的运行效率。如果任务得到资源少了，必将影响自身的程序运行效率，如果任务占用过多资源，在集群任务运行高峰期，必然导致挤占其他任务运行所需的资源。  那么如何利用资源与调度管理工具？作为大数据集群的使用者，基于Hive 做业务的开发者要高效地利用资源与调度管理工具，需要知道两方面的内容：
+ YARN运行的基本组成和工作原理，能够基本理清程序运行的整体流程，知道哪些过程或者配置可能成为瓶颈，可以先不用了解，但一定要有意识。 YARN资源调度与分配算法。   这里有个感触就是，对学习任何一个大数据组件是不是也应该采用这种方式呢？第一要熟悉该组件的基本组成和工作原理，对其大体的工作流程要熟悉。当然了看一遍是不可能全部记住以及全部消化和理解的。不如多看几遍，很多陌生的名词头一次看或许印象不深，但是如果多看几遍甚至发到技术群讨论一下，印象和理解或许更加深刻，也有助于对该技术组件的学习。
+由此引申HDFS、MapReduce、Kafka、HBase、Spark、Flink&amp;hellip;都按照这种套路来学，会不会有触类旁通的效果呢？
+ 2.3 YARN的基本组成 YARN的基本结构由一个ResourceManager与多个NodeManager组成。ResourceManager负责对NodeManager所持有的资源进行统一管理和调度。当在处理一个作业时ResourceManager会在NodeManager所在节点创建一全权负责单个作业运行和监控的程序ApplicationMaster。
+  ResouceManager（简称RM）
+ 资源管理器负责整个集群资源的调度，该组件由两部分构成：调度器（Scheduler）和ApplicationsMaster（简称ASM）。调度器会根据特定调度器实现调度算法，结合作业所在的队列资源容量，将资源按调度算法分配给每个任务。分配的资源将用容器（container）形式提供，容器是一个相对封闭独立的环境，已经将CPU、内存及任务运行所需环境条件封装在一起。通过容器可以很好地限定每个任务使用的资源量。YARN调度器目前在生产环境中被用得较多的有两种：能力调度器（CapacityScheduler）和公平调度器（Fair Scheduler）。（还有一种FIFO Scheduler）</description>
+    </item>
+    
+    <item>
+      <title>再来一道SQL题</title>
+      <link>https://niuniu.langchao2020.tech/posts/keep-water-for-hive/</link>
+      <pubDate>Sun, 04 Oct 2020 21:37:37 +0800</pubDate>
+      
+      <guid>https://niuniu.langchao2020.tech/posts/keep-water-for-hive/</guid>
+      <description>一、求每一年最高气温的那一天以及温度 1.1 数据准备 2014010114 2014010216 2014010317 2014010410 2014010506 2012010609 2012010732 2012010812 2012010919 2012011023 2001010116 2001010212 2001010310 2001010411 2001010529 2013010619 2013010722 2013010812 2013010929 2013011023 2008010105 2008010216 2008010337 2008010414 2008010516 2007010619 2007010712 2007010812 2007010999 2007011023 2010010114 2010010216 2010010317 2010010410 2010010506 2015010649 2015010722 2015010812 2015010999 2015011023 数据的含义是：2010012325表示在2010年01月23日的气温为25度。
+建表、导入数据：
+create table tempertrue(data string); load data local inpath &amp;#34;/data/soft/hive-3.2.1/mydata/tempertrue.txt&amp;#34; into table tempertrue; ※ 1.2 求每一年最高气温的那一天以及温度 首先，先创建一个临时视图，把data分割日期和温度两个字段。
+create view temp as select substr(data, 1, 8) as ttime, substr(data, 9) as tep from tempertrue; 利用开窗函数、substr函数对data分割后分组并排序：</description>
+    </item>
+    
+    <item>
       <title>请为Hive开扇窗</title>
       <link>https://niuniu.langchao2020.tech/posts/hive-window-func/</link>
       <pubDate>Sat, 03 Oct 2020 21:01:25 +0800</pubDate>
@@ -115,6 +176,22 @@ LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留�
       
       <guid>https://niuniu.langchao2020.tech/about/</guid>
       <description>人的一生中，真正属于自己的财富只有两个：自己的“才华”和自己的“时间”。通常才华越来越多而时间越来越少。人生就是用时间换取才华。</description>
+    </item>
+    
+    <item>
+      <title>时隔五个月的少年又回来了</title>
+      <link>https://niuniu.langchao2020.tech/posts/%E6%97%B6%E9%9A%94%E4%BA%94%E4%B8%AA%E6%9C%88%E7%9A%84%E5%B0%91%E5%B9%B4%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/</link>
+      <pubDate>Tue, 29 Sep 2020 23:44:55 +0800</pubDate>
+      
+      <guid>https://niuniu.langchao2020.tech/posts/%E6%97%B6%E9%9A%94%E4%BA%94%E4%B8%AA%E6%9C%88%E7%9A%84%E5%B0%91%E5%B9%B4%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/</guid>
+      <description>一眨眼就是五个月，整整五个月，你知道我这五个月都是怎么过来的吗？
+迷茫、踌躇、失意、自闭、堕落、颓废、自暴自弃&amp;hellip;
+这注定是一段挥之不去的记忆。
+#include&amp;lt;stdio.h&amp;gt;int main() { for (int i = 0; i &amp;lt; 10; i++) { printf(&amp;#34;Hello, World!&amp;#34;); } return 0; } 为什么要使用图床 在hugo中，图片是以/static为基准目录的，例如，设baseUrl为https://focksor.gitee.io/，图片文件存放位置是static/img/gitee/123.jpg，那么，编译完成后页面图片引用的地址就是https://focksor.gitee.io/img/gitee/123.jpg，则在Markdown要引用此图片应该用![图片说明](/img/gitee/123.jpg)，但是这样带来的问题是，在写作的时候无法看到图片，要经过hugo编译之后才能看到文档图片，这样的写作显然是不友好的。
+图床指存储图片的服务器，使用图床存储文档中的图片，那么在使用图片的时候只要写上图片所在的网络地址就好了，这样比较使用静态图片体验显然要好很多。下面介绍Gitee+PicGo的方法来使用gitee作为图床。
+ 图床指存储图片的服务器，使用图床存储文档中的图片，那么在使用图片的时候只要写上图片所在的网络地址就好了，这样比较使用静态图片体验显然要好很多。下面介绍Gitee+PicGo的方法来使用gitee作为图床。
+一眨眼就是五个月，整整五个月，你知道我这五个月都是怎么过来的吗？
+ </description>
     </item>
     
   </channel>
