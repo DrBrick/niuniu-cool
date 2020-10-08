@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Hive on ฅ՞•ﻌ•՞ฅ要抱抱</title>
-    <link>https://niuniu.langchao2020.tech/tags/hive/</link>
+    <link>https://niub.link/tags/hive/</link>
     <description>Recent content in Hive on ฅ՞•ﻌ•՞ฅ要抱抱</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Mon, 05 Oct 2020 21:12:17 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/tags/hive/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Oct 2020 21:12:17 +0800</lastBuildDate><atom:link href="https://niub.link/tags/hive/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>关于Hive和YARNの读书笔记</title>
-      <link>https://niuniu.langchao2020.tech/posts/helloyarn/</link>
+      <link>https://niub.link/posts/helloyarn/</link>
       <pubDate>Mon, 05 Oct 2020 21:12:17 +0800</pubDate>
       
-      <guid>https://niuniu.langchao2020.tech/posts/helloyarn/</guid>
+      <guid>https://niub.link/posts/helloyarn/</guid>
       <description>一、回顾Hive的架构 1.1 Hive的基本结构 在Hadoop 2.x版本以后，Hive所有运行的任务都是交由YARN来统一管理。下图所示为Hive作业的工作流程：
 客户端提交SQL作业到HiveServer2, HiveServer2会根据用户提交的SQL作业及数据库中现有的元数据信息（实际生产中存放在MySQL中）生成一份可供计算引擎执行的计划。每个执行计划对应若干MapReduce作业，Hive会将所有的MapReduce作业都一一提交到YARN中，由YARN去负责创建MapReduce作业对应的子任务任务，并协调它们的运行。YARN创建的子任务会与HDFS进行交互，获取计算所需的数据，计算完成后将最终的结果写入HDFS或者本地。
 从整个Hive运行作业的过程我们可以知道Hive自身主要包含3个部分：
@@ -33,10 +33,10 @@ Hive的元数据主要分为5个大部分：
     
     <item>
       <title>再来一道SQL题</title>
-      <link>https://niuniu.langchao2020.tech/posts/keep-water-for-hive/</link>
+      <link>https://niub.link/posts/keep-water-for-hive/</link>
       <pubDate>Sun, 04 Oct 2020 21:37:37 +0800</pubDate>
       
-      <guid>https://niuniu.langchao2020.tech/posts/keep-water-for-hive/</guid>
+      <guid>https://niub.link/posts/keep-water-for-hive/</guid>
       <description>一、求每一年最高气温的那一天以及温度 1.1 数据准备 2014010114 2014010216 2014010317 2014010410 2014010506 2012010609 2012010732 2012010812 2012010919 2012011023 2001010116 2001010212 2001010310 2001010411 2001010529 2013010619 2013010722 2013010812 2013010929 2013011023 2008010105 2008010216 2008010337 2008010414 2008010516 2007010619 2007010712 2007010812 2007010999 2007011023 2010010114 2010010216 2010010317 2010010410 2010010506 2015010649 2015010722 2015010812 2015010999 2015011023 数据的含义是：2010012325表示在2010年01月23日的气温为25度。
 建表、导入数据：
 create table tempertrue(data string); load data local inpath &amp;#34;/data/soft/hive-3.2.1/mydata/tempertrue.txt&amp;#34; into table tempertrue; ※ 1.2 求每一年最高气温的那一天以及温度 首先，先创建一个临时视图，把data分割日期和温度两个字段。
@@ -45,10 +45,10 @@ create view temp as select substr(data, 1, 8) as ttime, substr(data, 9) as tep f
     
     <item>
       <title>请为Hive开扇窗</title>
-      <link>https://niuniu.langchao2020.tech/posts/hive-window-func/</link>
+      <link>https://niub.link/posts/hive-window-func/</link>
       <pubDate>Sat, 03 Oct 2020 21:01:25 +0800</pubDate>
       
-      <guid>https://niuniu.langchao2020.tech/posts/hive-window-func/</guid>
+      <guid>https://niub.link/posts/hive-window-func/</guid>
       <description>一、Hive中的开窗函数 1.1 关于开窗函数 什么是开窗函数？
 回答这个问题之前先要了解一下什么是聚合函数。聚合函数是SQL的基本函数，其功能是对一组值执行计算，并返回单个值。再说一遍，聚合函数是SQL的基本函数，其功能是对一组值执行计算，并返回单个值。
 常见的聚合函数有：sum()，count()，max()，min()， avg()等，这些聚合函数通常与group by 子句连用，除了count以外，聚合函数忽略空值；
@@ -60,10 +60,10 @@ create view temp as select substr(data, 1, 8) as ttime, substr(data, 9) as tep f
     
     <item>
       <title>浅谈SQL语句的执行顺序</title>
-      <link>https://niuniu.langchao2020.tech/posts/sql-execution-sequence/</link>
+      <link>https://niub.link/posts/sql-execution-sequence/</link>
       <pubDate>Fri, 02 Oct 2020 19:10:59 +0800</pubDate>
       
-      <guid>https://niuniu.langchao2020.tech/posts/sql-execution-sequence/</guid>
+      <guid>https://niub.link/posts/sql-execution-sequence/</guid>
       <description>浅谈SQL语句的执行顺序 一、SQL语句执行顺序解析 SQL语句和编程语言的语句有很大的不同，有一点原因在于SQL并不一定是按照你写的SQL语句顺序执行的。因此在写SQL语句的时候很容易出现问题，最主要的问题还是记不住SQL命令，死记硬背效果好像也不是很好。
 需要知道的是，在SQL语句执行的过程中，都会产生一个虚拟表，用来保存SQL语句的执行结果。这些虚拟表对用户来说是透明的，只有最后一步生成的虚拟表才会返回给用户。如果没有再查询中指定某一子句，则将跳过相应的步骤。下面先给出SQL语句的执行顺序，并加以简单的解释。
 7) select 8) distinct &amp;lt;select_list&amp;gt; 1) from &amp;lt;left_table&amp;gt; 3) &amp;lt;join_type&amp;gt; join &amp;lt;right_table&amp;gt; 2) on &amp;lt;join_condition&amp;gt; 4) where &amp;lt;where_condition&amp;gt; 5) group by &amp;lt;group_by_list&amp;gt; 6) having &amp;lt;having_condition&amp;gt; 9) order by &amp;lt;order_by_list&amp;gt; 10) limit &amp;lt;limit_number&amp;gt; 1）from：对FROM子句中的左表&amp;lt;left_table&amp;gt;和右表&amp;lt;right_table&amp;gt;执行笛卡儿积（Cartesian product），产生虚拟表VT1。
@@ -84,10 +84,10 @@ LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留�
     
     <item>
       <title>Hive认识我的第一天</title>
-      <link>https://niuniu.langchao2020.tech/posts/hive-meeting/</link>
+      <link>https://niub.link/posts/hive-meeting/</link>
       <pubDate>Thu, 01 Oct 2020 17:08:58 +0800</pubDate>
       
-      <guid>https://niuniu.langchao2020.tech/posts/hive-meeting/</guid>
+      <guid>https://niub.link/posts/hive-meeting/</guid>
       <description>一、Hive简介 1.1 什么是Hive Hive官网给出的定义是：“The Apache Hive ™ data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.”
 我粗糙的理解是，Hive是一个类似Hadoop（集群）的客户端，所谓客户端在手天下我有。就好比你拿到了电视的遥控器，想怎么操作电视就怎么操作电视，比如换台。实际上Hive使用的是类似SQL的语句去操作（离线数据分析、数据管理&amp;hellip;）HDFS上的数据，本质是将SQL语句转化成MapReduce作业。
 1.2 为什么要使用Hive Hive的本质是将SQL转化成MapReduce作业，那么直接使用MapReduce不就好了，何必转一个弯呢？因为Hive更方便啊，它是遥控器！MapReduce编程模型还是有一定门槛的，代码量多而且只有map和reduce过程，实现复杂的计算逻辑则难度相当之大。

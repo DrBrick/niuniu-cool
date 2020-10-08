@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Spark on ฅ՞•ﻌ•՞ฅ要抱抱</title>
-    <link>https://niuniu.langchao2020.tech/tags/spark/</link>
+    <link>https://niub.link/tags/spark/</link>
     <description>Recent content in Spark on ฅ՞•ﻌ•՞ฅ要抱抱</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Thu, 08 Oct 2020 15:57:05 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/tags/spark/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 08 Oct 2020 15:57:05 +0800</lastBuildDate><atom:link href="https://niub.link/tags/spark/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>浅析Spark内存管理并附送入门级架构原理</title>
-      <link>https://niuniu.langchao2020.tech/posts/spark-mem-and-process/</link>
+      <link>https://niub.link/posts/spark-mem-and-process/</link>
       <pubDate>Thu, 08 Oct 2020 15:57:05 +0800</pubDate>
       
-      <guid>https://niuniu.langchao2020.tech/posts/spark-mem-and-process/</guid>
+      <guid>https://niub.link/posts/spark-mem-and-process/</guid>
       <description>一、Spark Executor端内存管理模型详解 1.1 前言 众所周知Spark是一代基于内存进行计算的大数据计算引擎框架，它能够有效的利用内存进行分布式计算。为了更好的利用Spark，深入地理解其内存管理模型有着很重要的意义。当程序出现BUG时能够快速且头脑清醒的定位问题，对工作中Spark调优也有一定的帮助。本文主要探讨的是Spark2.x版本的Executor端的内存模型，Driver端的内存模型在此先不表。
 1.2 堆内内存（On-heap Memory） Executor进程作为一个JVM进程，其内存管理建立在JVM的内存管理之上，下图所展示了Executor进程的内存模型：
 Executor端堆内内存模型如下图所示：
