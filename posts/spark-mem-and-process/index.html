@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>浅析Spark内存管理并附送入门级架构原理 :: ฅ՞•ﻌ•՞ฅ要抱抱</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一、Spark Executor端内存管理模型详解 1.1 前言 众所周知Spark是一代基于内存进行计算的大数据计算引擎框架，它能够有效的利用内存进行分布式计算。为了更好的利用Spark，深入地理解其内存管理模型有着很重要的意义。当程序出现BUG时能够快速且头脑清醒的定位问题，对工作中Spark调优也有一定的帮助。本文主要探讨的是Spark2.x版本的Executor端的内存模型，Driver端的内存模型在此先不表。
+1.2 堆内内存（On-heap Memory） Executor进程作为一个JVM进程，其内存管理建立在JVM的内存管理之上，下图所展示了Executor进程的内存模型：
+Executor端堆内内存模型如下图所示：
+一般情况下，Spark仅仅使用了堆内内存，Executor端的堆内内存区域可以分为以下四大块：
+ Execution内存：主要用于存放Shuffle、Join、Sort、Aggregation等计算过程中的临时数据 Storage内存：主要用于存储Spark的cache数据，例如RDD的cache，Broadcast变量，Unroll数据等。需要注意的是，unrolled的数据如果内存不够，会存储在driver端 用户内存（User Memory）：主要用于存储 RDD 转换操作所需要的数据，例如 RDD 依赖等信息 预留内存（Reserved Memory）：系统预留内存，用来存储Spark内部对象  1.3 堆外内存（Off-heap Memory） 堆外内存是自Spark1.6之后引入的，这种模式并不在JVM内存中申请内存。所以堆外内存不受JVM内存管理，可以避免频繁的GC，但是有一个缺点是必须用户自己编写内存申请和释放的逻辑。
+默认情况下堆外内存是关闭的，可通过spark.memory.offHeap.enabled参数启用，并通过spark.memory.offHeap.size参数设置堆外内存的大小，单位为字节。如果堆外内存被启用，那么Executor内将同时存在堆内和堆外内存，两者的使用互补影响，这个时候Executor中的Execution内存是堆内的Execution内存和堆外的Execution内存之和，同理，Storage内存也一样。
+与Executor堆内内存相比，堆外内存只有Execution内存和Storage内存，结构图如下所示：
+1.4 Execution内存和Storage内存之间的动态调整 在Spark1.5之前，Execution内存和Storage内存分配是静态的。换言之，如果Execution内存不足，即使Storage内存还有很多空闲内存也是无法被Execution所利用的。
+而现在Execution内存和Storage内存可以互相共享（双向共享，单向回收）的。也就是说，如果 Execution内存不足，而Storage内存有空闲，那么Execution可以从 Storage中申请空间；反之亦然。所以上图中的虚线代表Execution内存和Storage内存是可以随着运作动态调整的，这样可以有效地利用内存资源。
+Execution内存和Storage内存之间的动态调整图如下所示：
+具体的实现逻辑如下：
+ 程序提交时会设定基本的Execution内存和Storage内存区域（通过 spark.memory.storageFraction 参数设置）； 在程序运行时，如果双方的空间都不足时，则存储到硬盘；将内存中的块存储到磁盘的策略是按照LRU规则进行的。若己方空间不足而对方空余时，可借用对方的空间;（存储空间不足是指不足以放下一个完整的 Block） Execution内存的空间被Storage占用后，可让对方将占用的部分转存到硬盘，然后&amp;quot;归还&amp;quot;借用的空间； Storage内存的空间被Execution占用后，目前的实现是无法让对方&amp;quot;归还&amp;quot;，因为需要考虑 Shuffle 过程中的很多因素，实现起来较为复杂；而且 Shuffle 过程产生的文件在后面一定会被使用到，而 Cache 在内存的数据不一定在后面使用。  可见，“双向共享，单向回收”指的是Execution占用的Storage内存无法被Storage所“归还”。
+1.5 Task任务如何使用内存 为了更高效的利用宝贵的内存资源，Executor内运行的Task之间共享着 Execution内存。
+二、Spark架构原理（入门级） 2.1 Spark计算阶段的划分 Spark会根据应用的复杂程度，将计算程序分割成更多的计算阶段（stage），这些计算阶段组成一个有向无环图DAG，Spark任务调度器可以根据DAG的依赖关系执行计算阶段。
+所谓DAG也就是有向无环图，就是说不同阶段的依赖关系是有向的，计算过程只能沿着依赖关系方向执行，被依赖的阶段执行完成之前，依赖的阶段不能开始执行，同时，这个依赖关系不能有环形依赖，否则就成为死循环了。下面这张图展示了一个典型的Spark运行DAG的不同阶段：
+从上图可知，整个应用被划分为3个阶段，且阶段3需要依赖阶段1和阶段2，而阶段1和阶段2互不依赖；Spark在执行调度的时候，先执行Stage1和Stage2，再执行Stage3，如果有更多的阶段，其策略也是一样的。
+只要根据程序初始化好DAG，然后根据依赖关系顺序执行各个计算阶段。更为详细的说，Spark是通过DAGScheduler负责生成并管理DAG。DAGScheduler根据用户编写的代码生成DAG，然后将程序分发到分布式计算集群，按计算阶段的先后关系调度执行。可见，有了DAG，每个阶段的计算任务划分好了，将程序分发到集群的WorkNode上去执行，便实现了分布式计算。
+ ★ 那么问题来了，DAG是根据什么划分Stage的呢？
+ 答案是根据是否发生Shuffle过程（或者说根据宽窄依赖划分）。
+Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放在一起，进行聚合、关联等操作，因而每次shuffle都产生新的计算阶段。这也是为什么计算阶段会有依赖关系，它需要的数据来源于前面一个或多个计算阶段产生的数据，必须等待前面的阶段执行完毕才能进行shuffle，并得到数据。" />
+<meta name="keywords" content="niuniu, flink, spark, hadoop" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://niuniu.langchao2020.tech/posts/spark-mem-and-process/" />
+
+
+
+
+<link rel="stylesheet" href="https://niuniu.langchao2020.tech/assets/style.css">
+
+  <link rel="stylesheet" href="https://niuniu.langchao2020.tech/assets/green.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://niuniu.langchao2020.tech/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="https://niuniu.langchao2020.tech/img/favicon/green.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="浅析Spark内存管理并附送入门级架构原理 :: ฅ՞•ﻌ•՞ฅ要抱抱">
+<meta property="og:description" content="众所周知Spark是一代基于内存进行计算的大数据计算引擎框架，它能够有效的利用内存进行分布式计算。为了更好的利用Spark，深入地理解其内存管理模型有着很重要的意义。" />
+<meta property="og:url" content="https://niuniu.langchao2020.tech/posts/spark-mem-and-process/" />
+<meta property="og:site_name" content="浅析Spark内存管理并附送入门级架构原理" />
+
+  
+    <meta property="og:image" content="https://niuniu.langchao2020.tech/img/favicon/green.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+  <meta property="article:section" content="" />
+
+  <meta property="article:section" content="" />
+
+
+  <meta property="article:published_time" content="2020-10-08 15:57:05 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="green">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    牛牛ฅ^•ﻌ•^ฅ
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/">Home</a></li>
+      
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://niuniu.langchao2020.tech/posts/spark-mem-and-process/">浅析Spark内存管理并附送入门级架构原理</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-08 
+      </span>
+    
+    
+    <span class="post-author">:: niuniu</span>
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://niuniu.langchao2020.tech/tags/spark/">Spark</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="一spark-executor端内存管理模型详解">一、Spark Executor端内存管理模型详解<a href="#一spark-executor端内存管理模型详解" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="11-前言">1.1 前言<a href="#11-前言" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>众所周知Spark是一代基于内存进行计算的大数据计算引擎框架，它能够有效的利用内存进行分布式计算。为了更好的利用Spark，深入地理解其内存管理模型有着很重要的意义。当程序出现BUG时能够快速且头脑清醒的定位问题，对工作中Spark调优也有一定的帮助。本文主要探讨的是Spark2.x版本的<code>Executor端的内存模型</code>，Driver端的内存模型在此先不表。</p>
+<h3 id="12-堆内内存on-heap-memory">1.2 堆内内存（On-heap Memory）<a href="#12-堆内内存on-heap-memory" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Executor进程作为一个JVM进程，其内存管理建立在JVM的内存管理之上，下图所展示了<code>Executor进程的内存模型</code>：</p>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201008170124.png" alt="Executor进程的内存模型"></p>
+<p><code>Executor端堆内内存模型</code>如下图所示：</p>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201008161556.png" alt="Executor端堆内内存模型"></p>
+<p>一般情况下，Spark仅仅使用了堆内内存，Executor端的堆内内存区域可以分为以下四大块：</p>
+<ol>
+<li><code>Execution内存</code>：主要用于存放Shuffle、Join、Sort、Aggregation等计算过程中的临时数据</li>
+<li><code>Storage内存</code>：主要用于存储Spark的cache数据，例如RDD的cache，Broadcast变量，Unroll数据等。需要注意的是，unrolled的数据如果内存不够，会存储在driver端</li>
+<li>用户内存（User Memory）：主要用于存储 RDD 转换操作所需要的数据，例如 RDD 依赖等信息</li>
+<li>预留内存（Reserved Memory）：系统预留内存，用来存储Spark内部对象</li>
+</ol>
+<h3 id="13-堆外内存off-heap-memory">1.3 堆外内存（Off-heap Memory）<a href="#13-堆外内存off-heap-memory" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>堆外内存是自Spark1.6之后引入的，这种模式并不在JVM内存中申请内存。所以堆外内存不受JVM内存管理，可以避免频繁的GC，但是有一个缺点是必须用户自己编写内存申请和释放的逻辑。</p>
+<p>默认情况下堆外内存是关闭的，可通过<code>spark.memory.offHeap.enabled</code>参数启用，并通过<code>spark.memory.offHeap.size</code>参数设置堆外内存的大小，单位为字节。如果堆外内存被启用，那么Executor内将<code>同时存在堆内和堆外内存</code>，两者的使用互补影响，这个时候Executor中的Execution内存是堆内的Execution内存和堆外的Execution内存之和，同理，Storage内存也一样。</p>
+<p>与Executor堆内内存相比，<strong>堆外内存只有Execution内存和Storage内存</strong>，结构图如下所示：</p>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201008163154.png" alt="Executor堆内内存"></p>
+<h3 id="14-execution内存和storage内存之间的动态调整">1.4 Execution内存和Storage内存之间的动态调整<a href="#14-execution内存和storage内存之间的动态调整" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>在Spark1.5之前，Execution内存和Storage内存分配是静态的。换言之，如果Execution内存不足，即使Storage内存还有很多空闲内存也是无法被Execution所利用的。</p>
+<p>而现在Execution内存和Storage内存可以互相共享（<code>双向共享，单向回收</code>）的。也就是说，如果 Execution内存不足，而Storage内存有空闲，那么Execution可以从 Storage中申请空间；反之亦然。所以上图中的虚线代表Execution内存和Storage内存是可以随着运作动态调整的，这样可以有效地利用内存资源。</p>
+<p>Execution内存和Storage内存之间的动态调整图如下所示：</p>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201008164145.png" alt="Execution内存和Storage内存之间的动态调整图"></p>
+<p>具体的实现逻辑如下：</p>
+<ul>
+<li>程序提交时会设定基本的Execution内存和Storage内存区域（通过 spark.memory.storageFraction 参数设置）；</li>
+<li>在程序运行时，如果双方的空间都不足时，则存储到硬盘；将内存中的块存储到磁盘的策略是按照LRU规则进行的。若己方空间不足而对方空余时，可借用对方的空间;（存储空间不足是指不足以放下一个完整的 Block）</li>
+<li>Execution内存的空间被Storage占用后，可让对方将占用的部分转存到硬盘，然后&quot;归还&quot;借用的空间；</li>
+<li>Storage内存的空间被<code>Execution</code>占用后，目前的实现是无法让对方&quot;归还&quot;，因为需要考虑 Shuffle 过程中的很多因素，实现起来较为复杂；而且 Shuffle 过程产生的文件在后面一定会被使用到，而 Cache 在内存的数据不一定在后面使用。</li>
+</ul>
+<p>可见，“双向共享，单向回收”指的是<code>Execution占用的Storage内存无法被Storage所“归还”</code>。</p>
+<h3 id="15-task任务如何使用内存">1.5 Task任务如何使用内存<a href="#15-task任务如何使用内存" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>为了更高效的利用宝贵的内存资源，Executor内运行的Task之间<code>共享着 Execution内存</code>。</p>
+<h2 id="二spark架构原理入门级">二、Spark架构原理（入门级）<a href="#二spark架构原理入门级" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="21-spark计算阶段的划分">2.1 Spark计算阶段的划分<a href="#21-spark计算阶段的划分" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Spark会根据应用的复杂程度，将计算程序分割成更多的计算阶段（stage），这些计算阶段组成一个<code>有向无环图DAG</code>，Spark任务调度器可以根据DAG的依赖关系执行计算阶段。</p>
+<p>所谓DAG也就是有向无环图，就是说不同阶段的依赖关系是有向的，计算过程只能沿着依赖关系方向执行，被依赖的阶段执行完成之前，依赖的阶段不能开始执行，同时，这个依赖关系不能有环形依赖，否则就成为死循环了。下面这张图展示了一个典型的Spark运行DAG的不同阶段：</p>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201008173456.png" alt="Spark运行DAG的不同阶段"></p>
+<p>从上图可知，整个应用被划分为3个阶段，且阶段3需要依赖阶段1和阶段2，而阶段1和阶段2互不依赖；Spark在执行调度的时候，先执行Stage1和Stage2，再执行Stage3，如果有更多的阶段，其策略也是一样的。</p>
+<p>只要根据程序初始化好DAG，然后根据依赖关系顺序执行各个计算阶段。更为详细的说，Spark是通过DAGScheduler负责生成并管理DAG。<strong>DAGScheduler根据用户编写的代码生成DAG，然后将程序分发到分布式计算集群，按计算阶段的先后关系调度执行</strong>。可见，有了DAG，每个阶段的计算任务划分好了，将程序分发到集群的WorkNode上去执行，便实现了分布式计算。</p>
+<hr>
+<p>★ 那么问题来了，DAG是根据什么划分Stage的呢？</p>
+<blockquote>
+<p>答案是根据是否发生Shuffle过程（或者说根据宽窄依赖划分）。</p>
+<p>Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放在一起，进行聚合、关联等操作，因而每次shuffle都产生新的计算阶段。这也是为什么计算阶段会有<code>依赖关系</code>，它需要的数据来源于前面一个或多个计算阶段产生的数据，必须等待前面的阶段执行完毕才能进行shuffle，并得到数据。</p>
+<p>Shuffle是一项昂贵的操作，但是，shuffle也是Spark最重要的一个环节，只有通过shuffle，<strong>相关数据才能互相计算，构建起复杂的应用逻辑</strong>。</p>
+</blockquote>
+<p>★ 为什么Spark比MapReduce计算更高效呢？</p>
+<blockquote>
+<ol>
+<li>Spark是基于内存计算的，只有当内存不够时才会使用磁盘。本文的第一部分讲的就是关于Spark内存模型的管理；</li>
+<li>从本质上来说Spark计算也是基于MapReduce的，但是它更为细腻。细腻在它通过DAG把作业划分为Stage，减少作业的调度次数，使得很多计算步骤避免对HDFS不必要的访问。</li>
+</ol>
+</blockquote>
+<h3 id="22-spark的作业管理">2.2 Spark的作业管理<a href="#22-spark的作业管理" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Spark中RDD函数有两种，一种是<code>Transformation函数</code>（转换函数），一种是<code>Action函数</code>。Transformation函数调用以后得到的还是一个RDD，RDD的计算逻辑主要是通过转换函数来完成。而Action函数调用以后不再返回RDD了，比如count()函数，返回RDD中数据的元素个数；saveAsTextFile(path)，将RDD数据存储到path路径下。</p>
+<p>Spark的DAGScheduler在遇到shuffle的时候，会生成一个计算阶段，在遇到action函数的时候，会生成一个作业（job）。在遇到Action函数之前所有的RDD操作执行的都是逻辑操作，并没有真正被执行，这种也叫做<code>懒式加载</code>，Lazy化的加载方式有利于Spark对应用程序的优化。</p>
+<p>★ Spark作业中几个核心概念：</p>
+<ul>
+<li>Job（作业）：以Action函数为界限，将代码切分成多个Job；</li>
+<li>Stage（调度阶段）：根据宽窄依赖划分Stage；</li>
+<li>Task（任务）：真正执行计算的部分。Stage相当于TaskSet，每个Stage内部包含了多个Task，并将多个Task发送到各个Executor中执行计算。**每个Task的处理逻辑完全一样，不同的是对应处理的数据。**还是“移动数据不如移动计算”的大数据计算思想；</li>
+<li>Partition（分区）</li>
+</ul>
+<h3 id="23-spark作业执行过程">2.3 Spark作业执行过程<a href="#23-spark作业执行过程" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>首先看一下Spark的运行流程图：</p>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201008181832.png" alt="Spark的运行流程图"></p>
+<blockquote>
+<p>首先，Spark应用程序启动在自己的JVM进程里，即Driver进程，启动后调用<code>SparkContext</code>初始化执行配置和输入数据。SparkContext启动DAGScheduler构造执行的DAG图，划分Stage然后切分成最小的执行单位也就是计算任务。</p>
+<p>然后Driver向Cluster Manager请求计算资源，用于DAG的分布式计算。Cluster Manager收到请求以后，将Driver的主机地址等信息通知给集群的所有计算节点Worker。</p>
+<p>Worker收到信息以后，根据Driver的主机地址，跟Driver通信并注册，然后根据自己的空闲资源向Driver通报自己可以领用的任务数。Driver根据DAG图开始向注册的Worker分配任务。</p>
+<p>Worker收到任务后，启动Executor进程开始执行任务。Executor先检查自己是否有Driver的执行代码，如果没有，从Driver下载执行代码，通过Java反射加载后开始执行。</p>
+</blockquote>
+<h3 id="24-小结">2.4 小结<a href="#24-小结" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p><del>先炒菜去了&hellip;2020-10-8 18:24:44</del></p>
+<p>Spark三个特点使得分布式计算变得更加简单、高效、快速：</p>
+<ol>
+<li>RDD编程模型</li>
+<li>DAG切分多Stage</li>
+<li>使用内存存储中间结果</li>
+</ol>
+<p>ヾ(⌐■_■)ノ 帅瞎</p>
+
+      </div></div>
+
+  
+  
+<div class="pagination">
+    <div class="pagination__title">
+        <span class="pagination__title-h">Read other posts</span>
+        <hr />
+    </div>
+    <div class="pagination__buttons">
+        
+        
+        <span class="button next">
+            <a href="https://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/">
+                <span class="button__text">HBase建表设计原则和优化</span>
+                <span class="button__icon">→</span>
+            </a>
+        </span>
+        
+    </div>
+</div>
+
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>Copyright © 2020 牛牛ฅ^•ﻌ•^ฅ ❤️</span>
+    
+        
+      </div>
+  </div>
+</footer>
+
+<script src="https://niuniu.langchao2020.tech/assets/main.js"></script>
+<script src="https://niuniu.langchao2020.tech/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

@@ -7,7 +7,35 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Wed, 07 Oct 2020 21:39:44 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 08 Oct 2020 15:57:05 +0800</lastBuildDate><atom:link href="https://niuniu.langchao2020.tech/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>浅析Spark内存管理并附送入门级架构原理</title>
+      <link>https://niuniu.langchao2020.tech/posts/spark-mem-and-process/</link>
+      <pubDate>Thu, 08 Oct 2020 15:57:05 +0800</pubDate>
+      
+      <guid>https://niuniu.langchao2020.tech/posts/spark-mem-and-process/</guid>
+      <description>一、Spark Executor端内存管理模型详解 1.1 前言 众所周知Spark是一代基于内存进行计算的大数据计算引擎框架，它能够有效的利用内存进行分布式计算。为了更好的利用Spark，深入地理解其内存管理模型有着很重要的意义。当程序出现BUG时能够快速且头脑清醒的定位问题，对工作中Spark调优也有一定的帮助。本文主要探讨的是Spark2.x版本的Executor端的内存模型，Driver端的内存模型在此先不表。
+1.2 堆内内存（On-heap Memory） Executor进程作为一个JVM进程，其内存管理建立在JVM的内存管理之上，下图所展示了Executor进程的内存模型：
+Executor端堆内内存模型如下图所示：
+一般情况下，Spark仅仅使用了堆内内存，Executor端的堆内内存区域可以分为以下四大块：
+ Execution内存：主要用于存放Shuffle、Join、Sort、Aggregation等计算过程中的临时数据 Storage内存：主要用于存储Spark的cache数据，例如RDD的cache，Broadcast变量，Unroll数据等。需要注意的是，unrolled的数据如果内存不够，会存储在driver端 用户内存（User Memory）：主要用于存储 RDD 转换操作所需要的数据，例如 RDD 依赖等信息 预留内存（Reserved Memory）：系统预留内存，用来存储Spark内部对象  1.3 堆外内存（Off-heap Memory） 堆外内存是自Spark1.6之后引入的，这种模式并不在JVM内存中申请内存。所以堆外内存不受JVM内存管理，可以避免频繁的GC，但是有一个缺点是必须用户自己编写内存申请和释放的逻辑。
+默认情况下堆外内存是关闭的，可通过spark.memory.offHeap.enabled参数启用，并通过spark.memory.offHeap.size参数设置堆外内存的大小，单位为字节。如果堆外内存被启用，那么Executor内将同时存在堆内和堆外内存，两者的使用互补影响，这个时候Executor中的Execution内存是堆内的Execution内存和堆外的Execution内存之和，同理，Storage内存也一样。
+与Executor堆内内存相比，堆外内存只有Execution内存和Storage内存，结构图如下所示：
+1.4 Execution内存和Storage内存之间的动态调整 在Spark1.5之前，Execution内存和Storage内存分配是静态的。换言之，如果Execution内存不足，即使Storage内存还有很多空闲内存也是无法被Execution所利用的。
+而现在Execution内存和Storage内存可以互相共享（双向共享，单向回收）的。也就是说，如果 Execution内存不足，而Storage内存有空闲，那么Execution可以从 Storage中申请空间；反之亦然。所以上图中的虚线代表Execution内存和Storage内存是可以随着运作动态调整的，这样可以有效地利用内存资源。
+Execution内存和Storage内存之间的动态调整图如下所示：
+具体的实现逻辑如下：
+ 程序提交时会设定基本的Execution内存和Storage内存区域（通过 spark.memory.storageFraction 参数设置）； 在程序运行时，如果双方的空间都不足时，则存储到硬盘；将内存中的块存储到磁盘的策略是按照LRU规则进行的。若己方空间不足而对方空余时，可借用对方的空间;（存储空间不足是指不足以放下一个完整的 Block） Execution内存的空间被Storage占用后，可让对方将占用的部分转存到硬盘，然后&amp;quot;归还&amp;quot;借用的空间； Storage内存的空间被Execution占用后，目前的实现是无法让对方&amp;quot;归还&amp;quot;，因为需要考虑 Shuffle 过程中的很多因素，实现起来较为复杂；而且 Shuffle 过程产生的文件在后面一定会被使用到，而 Cache 在内存的数据不一定在后面使用。  可见，“双向共享，单向回收”指的是Execution占用的Storage内存无法被Storage所“归还”。
+1.5 Task任务如何使用内存 为了更高效的利用宝贵的内存资源，Executor内运行的Task之间共享着 Execution内存。
+二、Spark架构原理（入门级） 2.1 Spark计算阶段的划分 Spark会根据应用的复杂程度，将计算程序分割成更多的计算阶段（stage），这些计算阶段组成一个有向无环图DAG，Spark任务调度器可以根据DAG的依赖关系执行计算阶段。
+所谓DAG也就是有向无环图，就是说不同阶段的依赖关系是有向的，计算过程只能沿着依赖关系方向执行，被依赖的阶段执行完成之前，依赖的阶段不能开始执行，同时，这个依赖关系不能有环形依赖，否则就成为死循环了。下面这张图展示了一个典型的Spark运行DAG的不同阶段：
+从上图可知，整个应用被划分为3个阶段，且阶段3需要依赖阶段1和阶段2，而阶段1和阶段2互不依赖；Spark在执行调度的时候，先执行Stage1和Stage2，再执行Stage3，如果有更多的阶段，其策略也是一样的。
+只要根据程序初始化好DAG，然后根据依赖关系顺序执行各个计算阶段。更为详细的说，Spark是通过DAGScheduler负责生成并管理DAG。DAGScheduler根据用户编写的代码生成DAG，然后将程序分发到分布式计算集群，按计算阶段的先后关系调度执行。可见，有了DAG，每个阶段的计算任务划分好了，将程序分发到集群的WorkNode上去执行，便实现了分布式计算。
+ ★ 那么问题来了，DAG是根据什么划分Stage的呢？
+ 答案是根据是否发生Shuffle过程（或者说根据宽窄依赖划分）。
+Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放在一起，进行聚合、关联等操作，因而每次shuffle都产生新的计算阶段。这也是为什么计算阶段会有依赖关系，它需要的数据来源于前面一个或多个计算阶段产生的数据，必须等待前面的阶段执行完毕才能进行shuffle，并得到数据。</description>
+    </item>
+    
     <item>
       <title>HBase建表设计原则和优化</title>
       <link>https://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</link>

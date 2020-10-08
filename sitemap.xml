@@ -3,27 +3,37 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://niuniu.langchao2020.tech/posts/</loc>
+    <lastmod>2020-10-08T15:57:05+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://niuniu.langchao2020.tech/tags/spark/</loc>
+    <lastmod>2020-10-08T15:57:05+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://niuniu.langchao2020.tech/tags/</loc>
+    <lastmod>2020-10-08T15:57:05+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://niuniu.langchao2020.tech/</loc>
+    <lastmod>2020-10-08T15:57:05+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://niuniu.langchao2020.tech/posts/spark-mem-and-process/</loc>
+    <lastmod>2020-10-08T15:57:05+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://niuniu.langchao2020.tech/tags/hbase/</loc>
     <lastmod>2020-10-07T21:39:44+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://niuniu.langchao2020.tech/posts/hbase-table-and-optimize/</loc>
-    <lastmod>2020-10-07T21:39:44+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://niuniu.langchao2020.tech/posts/</loc>
-    <lastmod>2020-10-07T21:39:44+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://niuniu.langchao2020.tech/tags/</loc>
-    <lastmod>2020-10-07T21:39:44+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://niuniu.langchao2020.tech/</loc>
     <lastmod>2020-10-07T21:39:44+08:00</lastmod>
   </url>
   
