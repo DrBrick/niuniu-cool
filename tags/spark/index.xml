@@ -7,7 +7,28 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Thu, 08 Oct 2020 15:57:05 +0800</lastBuildDate><atom:link href="https://niub.link/tags/spark/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 09 Oct 2020 19:41:25 +0800</lastBuildDate><atom:link href="https://niub.link/tags/spark/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>RDD知识点梳理</title>
+      <link>https://niub.link/posts/about-rdd/</link>
+      <pubDate>Fri, 09 Oct 2020 19:41:25 +0800</pubDate>
+      
+      <guid>https://niub.link/posts/about-rdd/</guid>
+      <description>一、RDD是什么有何特点？ 1.1 RDD的基本概念 什么是RDD？Spark官网给出的解释是：
+ The main abstraction Spark provides is a resilient distributed dataset (RDD), which is a collection of elements partitioned across the nodes of the cluster that can be operated on in parallel.
+ RDD全称是一个叫弹性分布式数据集的东西，是Spark对数据的核心抽象，也是最关键的抽象，它实质上是一组分布式的JVM不可变对象集合。不可变意味着它是只读的，RDD在经过转换产生新的RDD时，原有的RDD不会改变。
+Spark提供一个统一的数据解决方案——RDD，所有需要经过Spark引擎处理的数据都需要被转成RDD，这样便可以提供统一的计算引擎结构。RDD可以处理很多种类型数据，比如JSON、text、集合&amp;hellip;，使用Spark进行分布式计算编程，最核心的就是RDD。
+RDD名字中虽然带有分布式，但是它的目的却是要让用户感觉不到分布式，而像操作本地数据集一样操作在分布式存储中的数据。用户可以将RDD看作一个数组，数组并没有保存数据，而是每个数据分区的引用，数据以分区中的元素的形式分散保存在集群中的各个节点上。从这个角度上来说，RDD存储的是元数据而非数据本身。
+1.2 RDD中有什么 每个RDD都有如下几个成员：
+ 分区的集合 用来基于分区进行计算的函数（算子） 依赖（与其他RDD）的集合 对于用来计算出每个分片的地址集合（如HDFS上文件的块存储地址） 对于KV类型的RDD而言有散列分区器  1.3 RDD有什么特性？   RDD维护血统关系图
+    延迟计算
+    支持持久化
+ 当对RDD执行持久化操作时，每个节点都会将自己操作的partition数据持久化到内存中，并且之后对该RDD的反复使用中直接使用内存中缓存的partition数据。
+巧妙使用RDD持久化，在某些场景下对spark应用程序的性能有很大的提升。
+如何持久化一个RDD？调用cache()或者persist()方法即可；cache()是persist()的简化方式，cache()底层调用是persist()无参版本，也就是调用persist(MEMORY_ONLY)，将数据持久化到内存中。
+常见的几种持久化策略机制：</description>
+    </item>
+    
     <item>
       <title>浅析Spark内存管理并附送入门级架构原理</title>
       <link>https://niub.link/posts/spark-mem-and-process/</link>

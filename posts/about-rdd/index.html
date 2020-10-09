@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>RDD知识点梳理 :: ฅ՞•ﻌ•՞ฅ要抱抱</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一、RDD是什么有何特点？ 1.1 RDD的基本概念 什么是RDD？Spark官网给出的解释是：
+ The main abstraction Spark provides is a resilient distributed dataset (RDD), which is a collection of elements partitioned across the nodes of the cluster that can be operated on in parallel.
+ RDD全称是一个叫弹性分布式数据集的东西，是Spark对数据的核心抽象，也是最关键的抽象，它实质上是一组分布式的JVM不可变对象集合。不可变意味着它是只读的，RDD在经过转换产生新的RDD时，原有的RDD不会改变。
+Spark提供一个统一的数据解决方案——RDD，所有需要经过Spark引擎处理的数据都需要被转成RDD，这样便可以提供统一的计算引擎结构。RDD可以处理很多种类型数据，比如JSON、text、集合&amp;hellip;，使用Spark进行分布式计算编程，最核心的就是RDD。
+RDD名字中虽然带有分布式，但是它的目的却是要让用户感觉不到分布式，而像操作本地数据集一样操作在分布式存储中的数据。用户可以将RDD看作一个数组，数组并没有保存数据，而是每个数据分区的引用，数据以分区中的元素的形式分散保存在集群中的各个节点上。从这个角度上来说，RDD存储的是元数据而非数据本身。
+1.2 RDD中有什么 每个RDD都有如下几个成员：
+ 分区的集合 用来基于分区进行计算的函数（算子） 依赖（与其他RDD）的集合 对于用来计算出每个分片的地址集合（如HDFS上文件的块存储地址） 对于KV类型的RDD而言有散列分区器  1.3 RDD有什么特性？   RDD维护血统关系图
+    延迟计算
+    支持持久化
+ 当对RDD执行持久化操作时，每个节点都会将自己操作的partition数据持久化到内存中，并且之后对该RDD的反复使用中直接使用内存中缓存的partition数据。
+巧妙使用RDD持久化，在某些场景下对spark应用程序的性能有很大的提升。
+如何持久化一个RDD？调用cache()或者persist()方法即可；cache()是persist()的简化方式，cache()底层调用是persist()无参版本，也就是调用persist(MEMORY_ONLY)，将数据持久化到内存中。
+常见的几种持久化策略机制：" />
+<meta name="keywords" content="niuniu, flink, spark, hadoop" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://niub.link/posts/about-rdd/" />
+
+
+
+
+<link rel="stylesheet" href="https://niub.link/assets/style.css">
+
+  <link rel="stylesheet" href="https://niub.link/assets/green.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://niub.link/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="https://niub.link/img/favicon/green.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="RDD知识点梳理 :: ฅ՞•ﻌ•՞ฅ要抱抱">
+<meta property="og:description" content="RDD全称是一个叫弹性分布式数据集的东西，是Spark对数据的核心抽象，也是最关键的抽象，它实质上是一组分布式的JVM不可变对象集合。" />
+<meta property="og:url" content="https://niub.link/posts/about-rdd/" />
+<meta property="og:site_name" content="RDD知识点梳理" />
+
+  
+    <meta property="og:image" content="https://niub.link/img/favicon/green.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+  <meta property="article:section" content="" />
+
+  <meta property="article:section" content="" />
+
+
+  <meta property="article:published_time" content="2020-10-09 19:41:25 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="green">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    link.niub.terminal
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/">Home</a></li>
+      
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://niub.link/posts/about-rdd/">RDD知识点梳理</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-09 
+      </span>
+    
+    
+    <span class="post-author">:: niuniu</span>
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://niub.link/tags/spark/">Spark</a>&nbsp;
+    
+    #<a href="https://niub.link/tags/"></a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="一rdd是什么有何特点">一、RDD是什么有何特点？<a href="#一rdd是什么有何特点" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="11-rdd的基本概念">1.1 RDD的基本概念<a href="#11-rdd的基本概念" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>什么是RDD？Spark官网给出的解释是：</p>
+<blockquote>
+<p>The main abstraction Spark provides is a <em>resilient distributed dataset</em> (RDD), which is a collection of elements partitioned across the nodes of the cluster that can be operated on in parallel.</p>
+</blockquote>
+<p>RDD全称是一个叫<code>弹性分布式数据集</code>的东西，是Spark对数据的核心抽象，也是最关键的抽象，它实质上是一组分布式的JVM不可变对象集合。不可变意味着它是只读的，RDD在经过转换产生新的RDD时，原有的RDD不会改变。</p>
+<p>Spark提供一个统一的数据解决方案——RDD，所有需要经过Spark引擎处理的数据都需要被转成RDD，这样便可以提供统一的计算引擎结构。RDD可以处理很多种类型数据，比如JSON、text、集合&hellip;，使用Spark进行分布式计算编程，最核心的就是RDD。</p>
+<p>RDD名字中虽然带有分布式，但是它的目的却是要让用户感觉不到分布式，而像操作本地数据集一样操作在分布式存储中的数据。用户可以将RDD看作一个数组，数组并没有保存数据，而是每个数据分区的引用，数据以分区中的元素的形式分散保存在集群中的各个节点上。从这个角度上来说，RDD存储的是元数据而非数据本身。</p>
+<h3 id="12-rdd中有什么">1.2 RDD中有什么<a href="#12-rdd中有什么" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>每个RDD都有如下几个成员：</p>
+<ul>
+<li>分区的集合</li>
+<li>用来<code>基于分区进行计算</code>的函数（算子）</li>
+<li>依赖（与其他RDD）的集合</li>
+<li>对于<code>用来计算出每个分片的地址</code>集合（如HDFS上文件的块存储地址）</li>
+<li>对于KV类型的RDD而言有<code>散列分区器</code></li>
+</ul>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201009195616.png" alt="RDD结构详解"></p>
+<h3 id="13-rdd有什么特性">1.3 RDD有什么特性？<a href="#13-rdd有什么特性" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<ol>
+<li>
+<p>RDD维护血统关系图</p>
+<blockquote>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201009200005.png" alt="RDD血统关系图"></p>
+</blockquote>
+</li>
+<li>
+<p>延迟计算</p>
+<blockquote>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201009200101.png" alt="RDD延迟计算"></p>
+</blockquote>
+</li>
+<li>
+<p>支持持久化</p>
+<blockquote>
+<p>当对RDD执行持久化操作时，每个节点都会将自己操作的partition数据持久化到内存中，并且之后对该RDD的反复使用中直接使用内存中缓存的partition数据。</p>
+<p>巧妙使用RDD持久化，在某些场景下对spark应用程序的性能有很大的提升。</p>
+<p>如何持久化一个RDD？调用cache()或者persist()方法即可；cache()是persist()的简化方式，cache()底层调用是persist()无参版本，也就是调用persist(MEMORY_ONLY)，将数据持久化到内存中。</p>
+<p>常见的几种持久化策略机制：</p>
+<p>MEMORY_ONLY
+MEMORY_AND_DISK
+MEMORY_ONLY_SER
+MEMORY_AND_DISK_SER
+DISK_ONLY
+MEMORY_ONLY_2、MEMORY_AND_DISK_2</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="二rdd中的算子">二、RDD中的算子<a href="#二rdd中的算子" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="21-关于rdd中的算子">2.1 关于RDD中的算子<a href="#21-关于rdd中的算子" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>“RDD算子主要分为两类，一类为转换（transform）算子，另一类为行动（action）算子，转换算子主要负责改变RDD中数据、切分RDD中数据、过滤掉某些数据等。转换算子按照一定顺序组合，Spark会将其放入到一个计算的有向无环图中，并不立刻执行，当Driver请求某些数据时，才会真正提交作业并触发计算，而行动算子就会触发Driver请求数据。这种机制与函数式编程思想的惰性求值类似。这样设计的原因首先是避免无谓的计算开销，更重要的是Spark可以了解所有执行的算子，从而设定并优化执行计划。”</p>
+<p>转换算子：主要负责改变RDD中数据、切分RDD中数据、过滤掉某些数据等。</p>
+<p>行动算子从功能上来说作为一个<code>触发器</code>，会触发提交整个作业并开始执行。从代码上来说，它与转换算子的最大不同之处在于：转换算子返回的还是RDD，行动算子返回的是非RDD类型的值，如整数，或者根本没有返回值。</p>
+<h3 id="22-窄依赖和宽依赖">2.2 窄依赖和宽依赖<a href="#22-窄依赖和宽依赖" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>窄依赖的准确定义是子RDD中的分区与父RDD中的分区只存在一对一的映射关系，而宽依赖则是子RDD中的分区与父RDD中的分区存在一对多的映射关系，那么从这个角度来说，map、filter、union等就是窄依赖，而groupByKey、cogroup就是典型的宽依赖。如下图所示：</p>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201009200535.jpeg" alt="窄依赖和宽依赖"></p>
+<p>理解宽窄依赖还是很有用的，因为Spark作业是按照宽窄依赖划分计算阶段Stage，DAGScheduler在遇到Shuffle的时候会生成一个计算阶段，在遇到Action函数的时候会生成一个作业（Job）。</p>
+
+      </div></div>
+
+  
+  
+<div class="pagination">
+    <div class="pagination__title">
+        <span class="pagination__title-h">Read other posts</span>
+        <hr />
+    </div>
+    <div class="pagination__buttons">
+        
+        
+        <span class="button next">
+            <a href="https://niub.link/posts/spark-mem-and-process/">
+                <span class="button__text">浅析Spark内存管理并附送入门级架构原理</span>
+                <span class="button__icon">→</span>
+            </a>
+        </span>
+        
+    </div>
+</div>
+
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>Copyright © 2020 牛牛ฅ^•ﻌ•^ฅ ❤️</span>
+    
+        
+      </div>
+  </div>
+</footer>
+
+<script src="https://niub.link/assets/main.js"></script>
+<script src="https://niub.link/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
