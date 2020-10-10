@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kafka on 布袋和尚</title>
+    <link>https://niub.link/tags/kafka/</link>
+    <description>Recent content in Kafka on 布袋和尚</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
+    <lastBuildDate>Sat, 10 Oct 2020 20:44:07 +0800</lastBuildDate><atom:link href="https://niub.link/tags/kafka/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kafka副本机制和偏移量</title>
+      <link>https://niub.link/posts/kafka-01/</link>
+      <pubDate>Sat, 10 Oct 2020 20:44:07 +0800</pubDate>
+      
+      <guid>https://niub.link/posts/kafka-01/</guid>
+      <description>一、Kafka副本机制 Kafka使用Zookeeper来维护集群Brokers的信息，每个Broker都有一个唯一的标识broker.id，用于标识自己在集群中的身份。Brokers会通过Zookeeper选举出一个叫Controller Broker节点，它除了具备其它Brokers的功能外，还负责管理主题分区及其副本的状态。
+在Kafka中Topic被分为多个分区（Partition），分区是Kafka最基本的存储单位。在创建主题的时候可使用replication-factor参数指定分区的副本个数。分区副本总有一个Leader副本，所有的消息都直接发送给Leader副本，其它副本都需要通过复制Leader中的数据保存数据一致。当Leader副本不可用时，其中一个Follower将成为新的Leader。
+每个分区都有一个ISR列表，用于维护所有同步的、可用的副本。并不是所有Follower都有资格成为同步副本，需要满足下面两个条件：
+ 与Zookeeper有一个活跃的会话，定时向其发送心跳 在规定的时间内从Leader副本那低延迟地获取消息  如果不满足上述条件，会被从ISR列表中移出，直到满足条件后才会被加入到ISR中。
+★ Kafka为什么提供元数据请求机制？
+ 在所有副本中，只有Leader副本才能进行消息的读写处理。由于不同分区的领导副本可能在不同的 broker 上，如果某个 broker 收到了一个分区请求，但是该分区的领导副本并不在该 broker 上，那么它就会向客户端返回一个Not a Leader for Partition的错误响应。
+ 二、Kafka偏移量 2.1 生产者和消费者 Kafka中Topic由于分区的存在，因此无法保证这个Topic范围内消息有序，但是可以保证消息在单个分区内有序。
+生产者：生产者负责创建消息，一般情况下生产者会把消息均衡地分布到所在Topic的分区上，如果我们想把信息写到指定的分区，可以通过自定义分区器来实现。
+消费者：负责消费消息。消费者可以订阅一个或者多个Topic。消费者通过消息的offset来区分消息是否消费。偏移量是一个不断递增的数值，在创建消息时，Kafka会把它添加到其中，给定分区中的消息偏移量是唯一的。消费者把每个分区最后读取的偏移量保存在Zookeeper或Kafka中，如果消费关闭或者重启，它还可以重新获取offset，以保证状态不会丢失。
+ 注意：一个分区只能被一个消费者群组当中的一个消费者所消费，但是可以被不同群组的所组成的多个消费者共同消费。
+ 2.2 Kafka消费详解 ★ Kafka为什么要设置消费者群组这个东西？
+ 单个消费者消费能力有限且还经常做一些高延迟的操作，比如将数据写入数据库或者HDFS，或者对数据进行耗时计算，这种情况下单个消费者完全无法跟上数据生产的速度。因此Kafka引入了消费者群组这个概念，通过群组内的更多消费者去消费消息，让它们分担负载，分别处理各个Partition上的消息。
+ 2.3 生产者相关 生产者向Topic发送消息的两种方式：
+ 同步发送 异步发送  ★ 生产者如何保证消息成功发送？
+生产者有一个可选参数ack，可设置发送数据是否需要服务端的反馈。该参数在一定程度上保证了Kafka写入消息的容错性。
+  当acks = 0时，消息发送出去就认为已经成功了，不会等待任何来自Broker的响应； 当acks = 1时，只要集群Leader副本收到消息，则认为发送成功； 当acks = -1时，所有的follower副本都接受消息时，则认为发送成功；   ★ Kafka有哪些优点，为什么它可以做到每秒上百万消息的高效分发？
+  高吞吐量，低延迟【零拷贝写入数据、Topic分区、Consumer分组】 良好的扩展性、容错性 持久性、可靠性：消息能被持久化到本地磁盘，并且有副本策略 高并发【支持上千个客户端同时读写】   2.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta name="generator" content="Hugo 0.75.1" />
   
-    <title>布袋和尚</title>
+    <title>Posts :: 布袋和尚</title>
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="niuniu, flink, spark, hadoop" />
+<meta name="description" content="" />
 <meta name="keywords" content="niuniu, flink, spark, hadoop" />
 <meta name="robots" content="noodp" />
-<link rel="canonical" href="https://niub.link/" />
+<link rel="canonical" href="https://niub.link/posts/" />
 
 
 
@@ -36,10 +35,10 @@
 
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="布袋和尚">
-<meta property="og:description" content="niuniu, flink, spark, hadoop" />
-<meta property="og:url" content="https://niub.link/" />
-<meta property="og:site_name" content="布袋和尚" />
+<meta property="og:title" content="Posts :: 布袋和尚">
+<meta property="og:description" content="" />
+<meta property="og:url" content="https://niub.link/posts/" />
+<meta property="og:site_name" content="Posts" />
 
   
     <meta property="og:image" content="https://niub.link/img/favicon/green.png">
@@ -52,7 +51,7 @@
 
 
 
-  <link href="/index.xml" rel="alternate" type="application/rss+xml" title="布袋和尚" />
+  <link href="/posts/index.xml" rel="alternate" type="application/rss+xml" title="布袋和尚" />
 
 
 
@@ -122,14 +121,194 @@
   
   <div class="posts">
     
-    
+      <div class="post on-list">
+        <h1 class="post-title">
+          <a href="https://niub.link/posts/kafka-01/">Kafka副本机制和偏移量</a>
+        </h1>
+        <div class="post-meta">
+          <span class="post-date">
+            2020-10-10
+          </span>
+          
+        </div>
 
-    
-    
-      
-    
-    
+        
+          <span class="post-tags">
+            
+            #<a href="https://niub.link/tags/kafka/">Kafka</a>&nbsp;
+            
+          </span>
+        
 
+        
+
+        <div class="post-content">
+          
+          在Kafka中Topic被分为多个分区（Partition），分区是Kafka<strong>最基本的存储单位</strong>。在创建主题的时候可使用<code>replication-factor</code>参数指定分区的副本个数。
+          
+        </div>
+
+        
+        <div>
+          <a class="read-more button"
+            href="/posts/kafka-01/">Read more →</a>
+        </div>
+        
+      </div>
+    
+      <div class="post on-list">
+        <h1 class="post-title">
+          <a href="https://niub.link/posts/about-rdd/">RDD知识点梳理</a>
+        </h1>
+        <div class="post-meta">
+          <span class="post-date">
+            2020-10-09
+          </span>
+          
+            <span class="post-author">:: niuniu</span>
+          
+        </div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="https://niub.link/tags/spark/">Spark</a>&nbsp;
+            
+            #<a href="https://niub.link/tags/"></a>&nbsp;
+            
+          </span>
+        
+
+        
+
+        <div class="post-content">
+          
+          RDD全称是一个叫弹性分布式数据集的东西，是Spark对数据的核心抽象，也是最关键的抽象，它实质上是一组分布式的JVM不可变对象集合。
+          
+        </div>
+
+        
+        <div>
+          <a class="read-more button"
+            href="/posts/about-rdd/">Read more →</a>
+        </div>
+        
+      </div>
+    
+      <div class="post on-list">
+        <h1 class="post-title">
+          <a href="https://niub.link/posts/spark-mem-and-process/">浅析Spark内存管理并附送入门级架构原理</a>
+        </h1>
+        <div class="post-meta">
+          <span class="post-date">
+            2020-10-08
+          </span>
+          
+            <span class="post-author">:: niuniu</span>
+          
+        </div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="https://niub.link/tags/spark/">Spark</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+        <div class="post-content">
+          
+          众所周知Spark是一代基于内存进行计算的大数据计算引擎框架，它能够有效的利用内存进行分布式计算。为了更好的利用Spark，深入地理解其内存管理模型有着很重要的意义。
+          
+        </div>
+
+        
+        <div>
+          <a class="read-more button"
+            href="/posts/spark-mem-and-process/">Read more →</a>
+        </div>
+        
+      </div>
+    
+      <div class="post on-list">
+        <h1 class="post-title">
+          <a href="https://niub.link/posts/hbase-table-and-optimize/">HBase建表设计原则和优化</a>
+        </h1>
+        <div class="post-meta">
+          <span class="post-date">
+            2020-10-07
+          </span>
+          
+            <span class="post-author">:: niuniu</span>
+          
+        </div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="https://niub.link/tags/hbase/">HBase</a>&nbsp;
+            
+            #<a href="https://niub.link/tags/"></a>&nbsp;
+            
+          </span>
+        
+
+        
+
+        <div class="post-content">
+          
+          HBase中的底层数据是以HFile文件形式组织的，而HFile中是安装KV存储的，如果K过大会极大的影响存储效率&hellip;
+          
+        </div>
+
+        
+        <div>
+          <a class="read-more button"
+            href="/posts/hbase-table-and-optimize/">Read more →</a>
+        </div>
+        
+      </div>
+    
+      <div class="post on-list">
+        <h1 class="post-title">
+          <a href="https://niub.link/posts/talk-about-hbase01/">浅谈HBase入门以及一些学习感悟</a>
+        </h1>
+        <div class="post-meta">
+          <span class="post-date">
+            2020-10-06
+          </span>
+          
+            <span class="post-author">:: niuniu</span>
+          
+        </div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="https://niub.link/tags/hbase/">HBase</a>&nbsp;
+            
+            #<a href="https://niub.link/tags/"></a>&nbsp;
+            
+          </span>
+        
+
+        
+
+        <div class="post-content">
+          
+          学习任何一门技术之前需要搞清楚意义在哪里，学完之后它能帮助我们解决什么问题，和其它相类似的技术有什么区别。
+          
+        </div>
+
+        
+        <div>
+          <a class="read-more button"
+            href="/posts/talk-about-hbase01/">Read more →</a>
+        </div>
+        
+      </div>
     
       <div class="post on-list">
         <h1 class="post-title">
@@ -324,23 +503,55 @@
         
       </div>
     
+      <div class="post on-list">
+        <h1 class="post-title">
+          <a href="https://niub.link/posts/%E6%97%B6%E9%9A%94%E4%BA%94%E4%B8%AA%E6%9C%88%E7%9A%84%E5%B0%91%E5%B9%B4%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/">时隔五个月的少年又回来了</a>
+        </h1>
+        <div class="post-meta">
+          <span class="post-date">
+            2020-09-29
+          </span>
+          
+            <span class="post-author">:: niuniu</span>
+          
+        </div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="https://niub.link/tags/"></a>&nbsp;
+            
+            #<a href="https://niub.link/tags/"></a>&nbsp;
+            
+          </span>
+        
+
+        
+
+        <div class="post-content">
+          
+          
+          
+        </div>
+
+        
+        <div>
+          <a class="read-more button"
+            href="/posts/%E6%97%B6%E9%9A%94%E4%BA%94%E4%B8%AA%E6%9C%88%E7%9A%84%E5%B0%91%E5%B9%B4%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/">Read more →</a>
+        </div>
+        
+      </div>
+    
     <div class="pagination">
   <div class="pagination__buttons">
     
       <span class="button previous">
-        <a href="/">
+        <a href="/posts/page/2/">
           <span class="button__icon">←</span>
           <span class="button__text">Newer posts</span>
         </a>
       </span>
     
-    
-      <span class="button next">
-        <a href="/page/3/">
-          <span class="button__text">Older posts</span>
-          <span class="button__icon">→</span>
-        </a>
-      </span>
     
   </div>
 </div>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Kafka副本机制和偏移量 :: 布袋和尚</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一、Kafka副本机制 Kafka使用Zookeeper来维护集群Brokers的信息，每个Broker都有一个唯一的标识broker.id，用于标识自己在集群中的身份。Brokers会通过Zookeeper选举出一个叫Controller Broker节点，它除了具备其它Brokers的功能外，还负责管理主题分区及其副本的状态。
+在Kafka中Topic被分为多个分区（Partition），分区是Kafka最基本的存储单位。在创建主题的时候可使用replication-factor参数指定分区的副本个数。分区副本总有一个Leader副本，所有的消息都直接发送给Leader副本，其它副本都需要通过复制Leader中的数据保存数据一致。当Leader副本不可用时，其中一个Follower将成为新的Leader。
+每个分区都有一个ISR列表，用于维护所有同步的、可用的副本。并不是所有Follower都有资格成为同步副本，需要满足下面两个条件：
+ 与Zookeeper有一个活跃的会话，定时向其发送心跳 在规定的时间内从Leader副本那低延迟地获取消息  如果不满足上述条件，会被从ISR列表中移出，直到满足条件后才会被加入到ISR中。
+★ Kafka为什么提供元数据请求机制？
+ 在所有副本中，只有Leader副本才能进行消息的读写处理。由于不同分区的领导副本可能在不同的 broker 上，如果某个 broker 收到了一个分区请求，但是该分区的领导副本并不在该 broker 上，那么它就会向客户端返回一个Not a Leader for Partition的错误响应。
+ 二、Kafka偏移量 2.1 生产者和消费者 Kafka中Topic由于分区的存在，因此无法保证这个Topic范围内消息有序，但是可以保证消息在单个分区内有序。
+生产者：生产者负责创建消息，一般情况下生产者会把消息均衡地分布到所在Topic的分区上，如果我们想把信息写到指定的分区，可以通过自定义分区器来实现。
+消费者：负责消费消息。消费者可以订阅一个或者多个Topic。消费者通过消息的offset来区分消息是否消费。偏移量是一个不断递增的数值，在创建消息时，Kafka会把它添加到其中，给定分区中的消息偏移量是唯一的。消费者把每个分区最后读取的偏移量保存在Zookeeper或Kafka中，如果消费关闭或者重启，它还可以重新获取offset，以保证状态不会丢失。
+ 注意：一个分区只能被一个消费者群组当中的一个消费者所消费，但是可以被不同群组的所组成的多个消费者共同消费。
+ 2.2 Kafka消费详解 ★ Kafka为什么要设置消费者群组这个东西？
+ 单个消费者消费能力有限且还经常做一些高延迟的操作，比如将数据写入数据库或者HDFS，或者对数据进行耗时计算，这种情况下单个消费者完全无法跟上数据生产的速度。因此Kafka引入了消费者群组这个概念，通过群组内的更多消费者去消费消息，让它们分担负载，分别处理各个Partition上的消息。
+ 2.3 生产者相关 生产者向Topic发送消息的两种方式：
+ 同步发送 异步发送  ★ 生产者如何保证消息成功发送？
+生产者有一个可选参数ack，可设置发送数据是否需要服务端的反馈。该参数在一定程度上保证了Kafka写入消息的容错性。
+  当acks = 0时，消息发送出去就认为已经成功了，不会等待任何来自Broker的响应； 当acks = 1时，只要集群Leader副本收到消息，则认为发送成功； 当acks = -1时，所有的follower副本都接受消息时，则认为发送成功；   ★ Kafka有哪些优点，为什么它可以做到每秒上百万消息的高效分发？
+  高吞吐量，低延迟【零拷贝写入数据、Topic分区、Consumer分组】 良好的扩展性、容错性 持久性、可靠性：消息能被持久化到本地磁盘，并且有副本策略 高并发【支持上千个客户端同时读写】   2." />
+<meta name="keywords" content="Kafka副本, ISR, 偏移量, offset" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://niub.link/posts/kafka-01/" />
+
+
+
+
+<link rel="stylesheet" href="https://niub.link/assets/style.css">
+
+  <link rel="stylesheet" href="https://niub.link/assets/green.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://niub.link/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="https://niub.link/img/favicon/green.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Kafka副本机制和偏移量 :: 布袋和尚">
+<meta property="og:description" content="在Kafka中Topic被分为多个分区（Partition），分区是Kafka**最基本的存储单位**。在创建主题的时候可使用`replication-factor`参数指定分区的副本个数。" />
+<meta property="og:url" content="https://niub.link/posts/kafka-01/" />
+<meta property="og:site_name" content="Kafka副本机制和偏移量" />
+
+  
+    <meta property="og:image" content="https://niub.link/img/favicon/green.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+
+  <meta property="article:published_time" content="2020-10-10 20:44:07 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="green">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    coooool terminal~
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/">Home</a></li>
+      
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://niub.link/posts/kafka-01/">Kafka副本机制和偏移量</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-10 
+      </span>
+    
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://niub.link/tags/kafka/">Kafka</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="一kafka副本机制">一、Kafka副本机制<a href="#一kafka副本机制" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Kafka使用Zookeeper来维护集群Brokers的信息，每个Broker都有一个唯一的标识<code>broker.id</code>，用于标识自己在集群中的身份。Brokers会通过Zookeeper选举出一个叫<code>Controller Broker</code>节点，它除了具备其它Brokers的功能外，还<strong>负责管理主题分区及其副本的状态</strong>。</p>
+<p>在Kafka中Topic被分为多个分区（Partition），分区是Kafka<strong>最基本的存储单位</strong>。在创建主题的时候可使用<code>replication-factor</code>参数指定分区的副本个数。分区副本总有一个Leader副本，所有的消息都直接发送给Leader副本，其它副本都需要通过复制Leader中的数据保存数据一致。当Leader副本不可用时，其中一个Follower将成为新的Leader。</p>
+<p>每个分区都有一个<code>ISR列表</code>，用于维护所有同步的、可用的副本。并不是所有Follower都有资格成为同步副本，需要满足下面两个条件：</p>
+<ol>
+<li>与Zookeeper有一个活跃的会话，定时向其发送心跳</li>
+<li>在规定的时间内从Leader副本那低延迟地获取消息</li>
+</ol>
+<p>如果不满足上述条件，会被从ISR列表中移出，直到满足条件后才会被加入到ISR中。</p>
+<p>★ Kafka为什么提供元数据请求机制？</p>
+<blockquote>
+<p>在所有副本中，只有<strong>Leader副本</strong>才能进行消息的读写处理。由于不同分区的领导副本可能在不同的 broker 上，如果某个 broker 收到了一个分区请求，但是该分区的领导副本并不在该 broker 上，那么它就会向客户端返回一个<code>Not a Leader for Partition</code>的错误响应。</p>
+</blockquote>
+<p><img src="https://gitee.com/or14/images/raw/master/hugo/20201010204552.png" alt="Kafka元数据请求机制"></p>
+<h2 id="二kafka偏移量">二、Kafka偏移量<a href="#二kafka偏移量" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="21-生产者和消费者">2.1 生产者和消费者<a href="#21-生产者和消费者" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Kafka中Topic由于分区的存在，因此无法保证这个Topic范围内消息有序，但是可以保证消息在单个分区内有序。</p>
+<p><strong>生产者</strong>：生产者负责创建消息，一般情况下生产者会把消息均衡地分布到所在Topic的分区上，如果我们想把信息写到指定的分区，可以通过<code>自定义分区器</code>来实现。</p>
+<p><strong>消费者</strong>：负责消费消息。消费者可以订阅一个或者多个Topic。消费者通过消息的offset来区分消息是否消费。偏移量是一个不断递增的数值，在创建消息时，Kafka会把它添加到其中，给定分区中的消息<code>偏移量是唯一的</code>。消费者把每个分区最后读取的偏移量保存在Zookeeper或Kafka中，如果消费关闭或者重启，它还可以重新获取offset，以保证状态不会丢失。</p>
+<blockquote>
+<p>注意：一个分区只能被一个消费者群组当中的一个消费者所消费，但是可以被不同群组的所组成的多个消费者共同消费。</p>
+</blockquote>
+<h3 id="22-kafka消费详解">2.2 Kafka消费详解<a href="#22-kafka消费详解" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>★ Kafka为什么要设置消费者群组这个东西？</p>
+<blockquote>
+<p>单个消费者消费能力有限且还经常做一些高延迟的操作，比如将数据写入数据库或者HDFS，或者对数据进行耗时计算，这种情况下单个消费者完全无法跟上数据生产的速度。因此Kafka引入了消费者群组这个概念，通过群组内的更多消费者去消费消息，让它们分担负载，分别处理各个Partition上的消息。</p>
+</blockquote>
+<h3 id="23-生产者相关">2.3 生产者相关<a href="#23-生产者相关" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>生产者向Topic发送消息的两种方式：</p>
+<ol>
+<li>同步发送</li>
+<li>异步发送</li>
+</ol>
+<p>★ 生产者如何保证消息成功发送？</p>
+<p>生产者有一个可选参数<code>ack</code>，可设置发送数据是否需要服务端的反馈。该参数在一定程度上保证了Kafka写入消息的容错性。</p>
+<blockquote>
+<ul>
+<li>当acks = 0时，消息发送出去就认为已经成功了，不会等待任何来自Broker的响应；</li>
+<li>当acks = 1时，只要集群Leader副本收到消息，则认为发送成功；</li>
+<li>当acks = -1时，所有的follower副本都接受消息时，则认为发送成功；</li>
+</ul>
+</blockquote>
+<p>★ Kafka有哪些优点，为什么它可以做到每秒上百万消息的高效分发？</p>
+<blockquote>
+<ul>
+<li>高吞吐量，低延迟【零拷贝写入数据、Topic分区、Consumer分组】</li>
+<li>良好的扩展性、容错性</li>
+<li>持久性、可靠性：<strong>消息能被持久化到本地磁盘，并且有副本策略</strong></li>
+<li>高并发【支持上千个客户端同时读写】</li>
+</ul>
+</blockquote>
+<h3 id="24-偏移量">2.4 偏移量<a href="#24-偏移量" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>偏移量是一个不断递增的数值，在创建消息时，Kafka会把它添加到其中，给定分区中的消息<code>偏移量是唯一的</code>。</p>
+<p>★ 关于偏移量的重要性</p>
+<blockquote>
+<p>Kafka的每一条消息都有一个<code>偏移量属性</code>，它是一个不断递增的数值，该属性记录了<code>消息在分区中的位置</code>。当消费者消费消息时，会往一个叫<code>_consumer_offset</code>的特殊主题发送消息，消息里面包含其消费每个分区的偏移量。消费者不消费时，会触发分区再均衡。那么问题来了，等下一次该消费者消费消息时如何知道该从哪里开始消费呢？</p>
+<p>偏移量的作用就在此，为了能够继续之前的工作，消费者需要读取每个分区最后一次提交的偏移量，然后从偏移量指定的地方继续处理。</p>
+<p>可见，如果不能够正确的提交偏移量，则可能会造成下面的问题：</p>
+<ul>
+<li>提交的<code>offset &gt; 客户端last commit offset</code>，则会造成消息漏消费；</li>
+<li>提交的<code>offset &lt; 客户端last commit offset</code>，则会造成消息重复消费；</li>
+</ul>
+</blockquote>
+<p>Kafka中提供了几种提交偏移量的方式：</p>
+<ul>
+<li>自动提交偏移量</li>
+<li>手动提交偏移量
+<ul>
+<li>同步提交方式</li>
+<li>异步提交范式</li>
+<li>同步+异步提交方式</li>
+</ul>
+</li>
+</ul>
+<p>★ Kafka在什么情况下会触发分区再均衡？</p>
+<blockquote>
+<p>分区再均衡可能出现在如下几种情况：</p>
+<p>（1）当Topic发生变化时，比如新的Partition加入Topic，分区和消费者会被重新分配；</p>
+<p>（2）当消费者群组发生变化时，比如某个消费者因意外因素导致下线，它离开群组之后，原本由它消费的Partition会被交由群组内其它消费者消费。这是因为消费者会在轮询消息时或者提交偏移量时发送心跳，如果消费者停止发送心跳的时间足够长，会话过期，群组协调器认为它已经死亡，因而会触发分区再均衡。（新的消费加入群组也会触发分区再均衡）；</p>
+</blockquote>
+
+      </div></div>
+
+  
+  
+<div class="pagination">
+    <div class="pagination__title">
+        <span class="pagination__title-h">Read other posts</span>
+        <hr />
+    </div>
+    <div class="pagination__buttons">
+        
+        
+        <span class="button next">
+            <a href="https://niub.link/posts/about-rdd/">
+                <span class="button__text">RDD知识点梳理</span>
+                <span class="button__icon">→</span>
+            </a>
+        </span>
+        
+    </div>
+</div>
+
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>Copyright © 2020 牛牛ฅ^•ﻌ•^ฅ ❤️</span>
+    
+        
+      </div>
+  </div>
+</footer>
+
+<script src="https://niub.link/assets/main.js"></script>
+<script src="https://niub.link/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
