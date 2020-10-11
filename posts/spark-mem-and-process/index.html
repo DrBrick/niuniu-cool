@@ -28,23 +28,23 @@ Execution内存和Storage内存之间的动态调整图如下所示：
 Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放在一起，进行聚合、关联等操作，因而每次shuffle都产生新的计算阶段。这也是为什么计算阶段会有依赖关系，它需要的数据来源于前面一个或多个计算阶段产生的数据，必须等待前面的阶段执行完毕才能进行shuffle，并得到数据。" />
 <meta name="keywords" content="niuniu, flink, spark, hadoop" />
 <meta name="robots" content="noodp" />
-<link rel="canonical" href="https://niub.link/posts/spark-mem-and-process/" />
+<link rel="canonical" href="https://hao.niub.link/posts/spark-mem-and-process/" />
 
 
 
 
-<link rel="stylesheet" href="https://niub.link/assets/style.css">
+<link rel="stylesheet" href="https://hao.niub.link/assets/style.css">
 
-  <link rel="stylesheet" href="https://niub.link/assets/green.css">
-
-
+  <link rel="stylesheet" href="https://hao.niub.link/assets/green.css">
 
 
 
 
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://niub.link/img/apple-touch-icon-144-precomposed.png">
 
-  <link rel="shortcut icon" href="https://niub.link/img/favicon/green.png">
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://hao.niub.link/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="https://hao.niub.link/img/favicon/green.png">
 
 
 
@@ -56,11 +56,11 @@ Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放�
 <meta property="og:type" content="article" />
 <meta property="og:title" content="浅析Spark内存管理并附送入门级架构原理 :: 布袋和尚">
 <meta property="og:description" content="众所周知Spark是一代基于内存进行计算的大数据计算引擎框架，它能够有效的利用内存进行分布式计算。为了更好的利用Spark，深入地理解其内存管理模型有着很重要的意义。" />
-<meta property="og:url" content="https://niub.link/posts/spark-mem-and-process/" />
+<meta property="og:url" content="https://hao.niub.link/posts/spark-mem-and-process/" />
 <meta property="og:site_name" content="浅析Spark内存管理并附送入门级架构原理" />
 
   
-    <meta property="og:image" content="https://niub.link/img/favicon/green.png">
+    <meta property="og:image" content="https://hao.niub.link/img/favicon/green.png">
   
 
 <meta property="og:image:width" content="2048">
@@ -143,7 +143,7 @@ Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放�
     
 <div class="post">
   <h1 class="post-title">
-    <a href="https://niub.link/posts/spark-mem-and-process/">浅析Spark内存管理并附送入门级架构原理</a></h1>
+    <a href="https://hao.niub.link/posts/spark-mem-and-process/">浅析Spark内存管理并附送入门级架构原理</a></h1>
   <div class="post-meta">
     
       <span class="post-date">
@@ -158,7 +158,7 @@ Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放�
   
   <span class="post-tags">
     
-    #<a href="https://niub.link/tags/spark/">Spark</a>&nbsp;
+    #<a href="https://hao.niub.link/tags/spark/">Spark</a>&nbsp;
     
   </span>
   
@@ -265,7 +265,7 @@ Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放�
     <div class="pagination__buttons">
         
         <span class="button previous">
-            <a href="https://niub.link/posts/about-rdd/">
+            <a href="https://hao.niub.link/posts/about-rdd/">
                 <span class="button__icon">←</span>
                 <span class="button__text">RDD知识点梳理</span>
             </a>
@@ -273,7 +273,7 @@ Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放�
         
         
         <span class="button next">
-            <a href="https://niub.link/posts/hbase-table-and-optimize/">
+            <a href="https://hao.niub.link/posts/hbase-table-and-optimize/">
                 <span class="button__text">HBase建表设计原则和优化</span>
                 <span class="button__icon">→</span>
             </a>
@@ -302,8 +302,8 @@ Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放�
   </div>
 </footer>
 
-<script src="https://niub.link/assets/main.js"></script>
-<script src="https://niub.link/assets/prism.js"></script>
+<script src="https://hao.niub.link/assets/main.js"></script>
+<script src="https://hao.niub.link/assets/prism.js"></script>
 
 
 

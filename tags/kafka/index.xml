@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Kafka on 布袋和尚</title>
-    <link>https://niub.link/tags/kafka/</link>
+    <link>https://hao.niub.link/tags/kafka/</link>
     <description>Recent content in Kafka on 布袋和尚</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Sun, 11 Oct 2020 21:30:13 +0800</lastBuildDate><atom:link href="https://niub.link/tags/kafka/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 11 Oct 2020 21:30:13 +0800</lastBuildDate><atom:link href="https://hao.niub.link/tags/kafka/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Kafka几个重要的图</title>
-      <link>https://niub.link/posts/kafka-02/</link>
+      <link>https://hao.niub.link/posts/kafka-02/</link>
       <pubDate>Sun, 11 Oct 2020 21:30:13 +0800</pubDate>
       
-      <guid>https://niub.link/posts/kafka-02/</guid>
+      <guid>https://hao.niub.link/posts/kafka-02/</guid>
       <description>一、Kafka中几个重要的架构示意图 1.1 Kafka架构体系图 由图可知，Kafka通过Zookeeper管理集群的元数据，发布订阅模式使用的是send/pull的模式。
 1.2 Kafka消息写入模式图 可以看到Kafka写入消息的时在每个分区是有序的。
 1.3 Kafka分区多副本架构图  ISR副本同步队列，由一个Leader和多个Follower分区副本组成。leader副本负责同生产者、消费者打交道（即生产消息通过它，消费消息也是通过它），follower副本用于同步leader副本分区的数据，且follower分区副本都是分布在Kafka集群上的。
@@ -36,10 +36,10 @@ bin/kafka-topics.sh --zookeeper hadoop200m:2181 --describe --topic topic-demo 2.
     
     <item>
       <title>Kafka副本机制和偏移量</title>
-      <link>https://niub.link/posts/kafka-01/</link>
+      <link>https://hao.niub.link/posts/kafka-01/</link>
       <pubDate>Sat, 10 Oct 2020 20:44:07 +0800</pubDate>
       
-      <guid>https://niub.link/posts/kafka-01/</guid>
+      <guid>https://hao.niub.link/posts/kafka-01/</guid>
       <description>一、Kafka副本机制 Kafka使用Zookeeper来维护集群Brokers的信息，每个Broker都有一个唯一的标识broker.id，用于标识自己在集群中的身份。Brokers会通过Zookeeper选举出一个叫Controller Broker节点，它除了具备其它Brokers的功能外，还负责管理主题分区及其副本的状态。
 在Kafka中Topic被分为多个分区（Partition），分区是Kafka最基本的存储单位。在创建主题的时候可使用replication-factor参数指定分区的副本个数。分区副本总有一个Leader副本，所有的消息都直接发送给Leader副本，其它副本都需要通过复制Leader中的数据保存数据一致。当Leader副本不可用时，其中一个Follower将成为新的Leader。
 每个分区都有一个ISR列表，用于维护所有同步的、可用的副本。并不是所有Follower都有资格成为同步副本，需要满足下面两个条件：

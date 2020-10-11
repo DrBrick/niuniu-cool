@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>HBase on 布袋和尚</title>
-    <link>https://niub.link/tags/hbase/</link>
+    <link>https://hao.niub.link/tags/hbase/</link>
     <description>Recent content in HBase on 布袋和尚</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Wed, 07 Oct 2020 21:39:44 +0800</lastBuildDate><atom:link href="https://niub.link/tags/hbase/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 07 Oct 2020 21:39:44 +0800</lastBuildDate><atom:link href="https://hao.niub.link/tags/hbase/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>HBase建表设计原则和优化</title>
-      <link>https://niub.link/posts/hbase-table-and-optimize/</link>
+      <link>https://hao.niub.link/posts/hbase-table-and-optimize/</link>
       <pubDate>Wed, 07 Oct 2020 21:39:44 +0800</pubDate>
       
-      <guid>https://niub.link/posts/hbase-table-and-optimize/</guid>
+      <guid>https://hao.niub.link/posts/hbase-table-and-optimize/</guid>
       <description>一、关于HBase建表时的几个设计原则 1.1 预分区 背景：HBase默认建表时有一个Region，且这个Region是没有RowKey边界的，所有数据在写入时都是往这个默认的Region中存入数据。随着数据量的不断增加，Region达到一定大小后会自动Split，而Split过程中会产生两个问题：
  数据可能只会往一个Region里面写，造成热点问题； Split是昂贵的操作，会消耗宝贵的集群IO资源；  对策：在创建表的时候，创建多个空Region，并确定每个Region的StartRowKey和EndRowKey，通过RowKey的合理设计使得数据均匀的落在各个Region上，不会存在热点问题；
 1.2 RowKey的设计原则 （1）RowKey长度越短越好。HBase中的底层数据是以HFile文件形式组织的，而HFile中是安装KV存储的，如果K过大会极大的影响存储效率；写入数据时会经过MemStore，如果K过长所占空间过大，内存的有效利用就会降低。
@@ -49,10 +49,10 @@ HBase负责组织HDFS上的文件（HDFS只负责存储）；</description>
     
     <item>
       <title>浅谈HBase入门以及一些学习感悟</title>
-      <link>https://niub.link/posts/talk-about-hbase01/</link>
+      <link>https://hao.niub.link/posts/talk-about-hbase01/</link>
       <pubDate>Tue, 06 Oct 2020 22:34:18 +0800</pubDate>
       
-      <guid>https://niub.link/posts/talk-about-hbase01/</guid>
+      <guid>https://hao.niub.link/posts/talk-about-hbase01/</guid>
       <description>一、前言 1.1 关于HBase我早就想学了 刚接触大数据的时候就听说过这些名词，Hadoop、HDFS、MapReduce、YARN、Hive、Spark、Flink&amp;hellip;.等，其中也听说过今天的主角——HBase。看到它的简要介绍时不禁发出感叹，好吊啊！能够存储几亿行*几百万列的数据量，当时截图给网友看的时候我都惊呆了。
 后面也陆续看了一些入门级别的HBase的教程，脑子里也有一些关于它的印象，什么RegionServer啊，Master啥的，心里也惦记着什么时候来学一学它。
 1.2 之前做了些什么？ 相比于其它组件，我还是算比较早接触到HBase的，从安装好了Hadoop集群之后就把HBase分布式数据库也给安装起来了，安装好了之后打开Web监控页面，写个test表建表语句，Web端看看瞧瞧也就算完成任务了。后面就去学习其他大数据组件去了，什么Hive、Spark、Flink、数据仓库、Kafka轮着来，就是没有轮到HBase，于是HBase的学习就一拖再拖&amp;hellip;

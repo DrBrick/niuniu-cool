@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Hadoop on 布袋和尚</title>
-    <link>https://niub.link/tags/hadoop/</link>
+    <link>https://hao.niub.link/tags/hadoop/</link>
     <description>Recent content in Hadoop on 布袋和尚</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Mon, 05 Oct 2020 21:12:17 +0800</lastBuildDate><atom:link href="https://niub.link/tags/hadoop/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Oct 2020 21:12:17 +0800</lastBuildDate><atom:link href="https://hao.niub.link/tags/hadoop/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>关于Hive和YARNの读书笔记</title>
-      <link>https://niub.link/posts/helloyarn/</link>
+      <link>https://hao.niub.link/posts/helloyarn/</link>
       <pubDate>Mon, 05 Oct 2020 21:12:17 +0800</pubDate>
       
-      <guid>https://niub.link/posts/helloyarn/</guid>
+      <guid>https://hao.niub.link/posts/helloyarn/</guid>
       <description>一、回顾Hive的架构 1.1 Hive的基本结构 在Hadoop 2.x版本以后，Hive所有运行的任务都是交由YARN来统一管理。下图所示为Hive作业的工作流程：
 客户端提交SQL作业到HiveServer2, HiveServer2会根据用户提交的SQL作业及数据库中现有的元数据信息（实际生产中存放在MySQL中）生成一份可供计算引擎执行的计划。每个执行计划对应若干MapReduce作业，Hive会将所有的MapReduce作业都一一提交到YARN中，由YARN去负责创建MapReduce作业对应的子任务任务，并协调它们的运行。YARN创建的子任务会与HDFS进行交互，获取计算所需的数据，计算完成后将最终的结果写入HDFS或者本地。
 从整个Hive运行作业的过程我们可以知道Hive自身主要包含3个部分：

@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on 布袋和尚</title>
-    <link>https://niub.link/posts/</link>
+    <link>https://hao.niub.link/posts/</link>
     <description>Recent content in Posts on 布袋和尚</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Sun, 11 Oct 2020 21:30:13 +0800</lastBuildDate><atom:link href="https://niub.link/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 11 Oct 2020 21:30:13 +0800</lastBuildDate><atom:link href="https://hao.niub.link/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Kafka几个重要的图</title>
-      <link>https://niub.link/posts/kafka-02/</link>
+      <link>https://hao.niub.link/posts/kafka-02/</link>
       <pubDate>Sun, 11 Oct 2020 21:30:13 +0800</pubDate>
       
-      <guid>https://niub.link/posts/kafka-02/</guid>
+      <guid>https://hao.niub.link/posts/kafka-02/</guid>
       <description>一、Kafka中几个重要的架构示意图 1.1 Kafka架构体系图 由图可知，Kafka通过Zookeeper管理集群的元数据，发布订阅模式使用的是send/pull的模式。
 1.2 Kafka消息写入模式图 可以看到Kafka写入消息的时在每个分区是有序的。
 1.3 Kafka分区多副本架构图  ISR副本同步队列，由一个Leader和多个Follower分区副本组成。leader副本负责同生产者、消费者打交道（即生产消息通过它，消费消息也是通过它），follower副本用于同步leader副本分区的数据，且follower分区副本都是分布在Kafka集群上的。
@@ -36,10 +36,10 @@ bin/kafka-topics.sh --zookeeper hadoop200m:2181 --describe --topic topic-demo 2.
     
     <item>
       <title>Kafka副本机制和偏移量</title>
-      <link>https://niub.link/posts/kafka-01/</link>
+      <link>https://hao.niub.link/posts/kafka-01/</link>
       <pubDate>Sat, 10 Oct 2020 20:44:07 +0800</pubDate>
       
-      <guid>https://niub.link/posts/kafka-01/</guid>
+      <guid>https://hao.niub.link/posts/kafka-01/</guid>
       <description>一、Kafka副本机制 Kafka使用Zookeeper来维护集群Brokers的信息，每个Broker都有一个唯一的标识broker.id，用于标识自己在集群中的身份。Brokers会通过Zookeeper选举出一个叫Controller Broker节点，它除了具备其它Brokers的功能外，还负责管理主题分区及其副本的状态。
 在Kafka中Topic被分为多个分区（Partition），分区是Kafka最基本的存储单位。在创建主题的时候可使用replication-factor参数指定分区的副本个数。分区副本总有一个Leader副本，所有的消息都直接发送给Leader副本，其它副本都需要通过复制Leader中的数据保存数据一致。当Leader副本不可用时，其中一个Follower将成为新的Leader。
 每个分区都有一个ISR列表，用于维护所有同步的、可用的副本。并不是所有Follower都有资格成为同步副本，需要满足下面两个条件：
@@ -61,10 +61,10 @@ bin/kafka-topics.sh --zookeeper hadoop200m:2181 --describe --topic topic-demo 2.
     
     <item>
       <title>RDD知识点梳理</title>
-      <link>https://niub.link/posts/about-rdd/</link>
+      <link>https://hao.niub.link/posts/about-rdd/</link>
       <pubDate>Fri, 09 Oct 2020 19:41:25 +0800</pubDate>
       
-      <guid>https://niub.link/posts/about-rdd/</guid>
+      <guid>https://hao.niub.link/posts/about-rdd/</guid>
       <description>一、RDD是什么有何特点？ 1.1 RDD的基本概念 什么是RDD？Spark官网给出的解释是：
  The main abstraction Spark provides is a resilient distributed dataset (RDD), which is a collection of elements partitioned across the nodes of the cluster that can be operated on in parallel.
  RDD全称是一个叫弹性分布式数据集的东西，是Spark对数据的核心抽象，也是最关键的抽象，它实质上是一组分布式的JVM不可变对象集合。不可变意味着它是只读的，RDD在经过转换产生新的RDD时，原有的RDD不会改变。
@@ -82,10 +82,10 @@ RDD名字中虽然带有分布式，但是它的目的却是要让用户感觉�
     
     <item>
       <title>浅析Spark内存管理并附送入门级架构原理</title>
-      <link>https://niub.link/posts/spark-mem-and-process/</link>
+      <link>https://hao.niub.link/posts/spark-mem-and-process/</link>
       <pubDate>Thu, 08 Oct 2020 15:57:05 +0800</pubDate>
       
-      <guid>https://niub.link/posts/spark-mem-and-process/</guid>
+      <guid>https://hao.niub.link/posts/spark-mem-and-process/</guid>
       <description>一、Spark Executor端内存管理模型详解 1.1 前言 众所周知Spark是一代基于内存进行计算的大数据计算引擎框架，它能够有效的利用内存进行分布式计算。为了更好的利用Spark，深入地理解其内存管理模型有着很重要的意义。当程序出现BUG时能够快速且头脑清醒的定位问题，对工作中Spark调优也有一定的帮助。本文主要探讨的是Spark2.x版本的Executor端的内存模型，Driver端的内存模型在此先不表。
 1.2 堆内内存（On-heap Memory） Executor进程作为一个JVM进程，其内存管理建立在JVM的内存管理之上，下图所展示了Executor进程的内存模型：
 Executor端堆内内存模型如下图所示：
@@ -110,10 +110,10 @@ Spark也需要通过shuffle将数据进行重新组合，相同Key的数据放�
     
     <item>
       <title>HBase建表设计原则和优化</title>
-      <link>https://niub.link/posts/hbase-table-and-optimize/</link>
+      <link>https://hao.niub.link/posts/hbase-table-and-optimize/</link>
       <pubDate>Wed, 07 Oct 2020 21:39:44 +0800</pubDate>
       
-      <guid>https://niub.link/posts/hbase-table-and-optimize/</guid>
+      <guid>https://hao.niub.link/posts/hbase-table-and-optimize/</guid>
       <description>一、关于HBase建表时的几个设计原则 1.1 预分区 背景：HBase默认建表时有一个Region，且这个Region是没有RowKey边界的，所有数据在写入时都是往这个默认的Region中存入数据。随着数据量的不断增加，Region达到一定大小后会自动Split，而Split过程中会产生两个问题：
  数据可能只会往一个Region里面写，造成热点问题； Split是昂贵的操作，会消耗宝贵的集群IO资源；  对策：在创建表的时候，创建多个空Region，并确定每个Region的StartRowKey和EndRowKey，通过RowKey的合理设计使得数据均匀的落在各个Region上，不会存在热点问题；
 1.2 RowKey的设计原则 （1）RowKey长度越短越好。HBase中的底层数据是以HFile文件形式组织的，而HFile中是安装KV存储的，如果K过大会极大的影响存储效率；写入数据时会经过MemStore，如果K过长所占空间过大，内存的有效利用就会降低。
@@ -149,10 +149,10 @@ HBase负责组织HDFS上的文件（HDFS只负责存储）；</description>
     
     <item>
       <title>浅谈HBase入门以及一些学习感悟</title>
-      <link>https://niub.link/posts/talk-about-hbase01/</link>
+      <link>https://hao.niub.link/posts/talk-about-hbase01/</link>
       <pubDate>Tue, 06 Oct 2020 22:34:18 +0800</pubDate>
       
-      <guid>https://niub.link/posts/talk-about-hbase01/</guid>
+      <guid>https://hao.niub.link/posts/talk-about-hbase01/</guid>
       <description>一、前言 1.1 关于HBase我早就想学了 刚接触大数据的时候就听说过这些名词，Hadoop、HDFS、MapReduce、YARN、Hive、Spark、Flink&amp;hellip;.等，其中也听说过今天的主角——HBase。看到它的简要介绍时不禁发出感叹，好吊啊！能够存储几亿行*几百万列的数据量，当时截图给网友看的时候我都惊呆了。
 后面也陆续看了一些入门级别的HBase的教程，脑子里也有一些关于它的印象，什么RegionServer啊，Master啥的，心里也惦记着什么时候来学一学它。
 1.2 之前做了些什么？ 相比于其它组件，我还是算比较早接触到HBase的，从安装好了Hadoop集群之后就把HBase分布式数据库也给安装起来了，安装好了之后打开Web监控页面，写个test表建表语句，Web端看看瞧瞧也就算完成任务了。后面就去学习其他大数据组件去了，什么Hive、Spark、Flink、数据仓库、Kafka轮着来，就是没有轮到HBase，于是HBase的学习就一拖再拖&amp;hellip;
@@ -175,10 +175,10 @@ HBase负责组织HDFS上的文件（HDFS只负责存储）；</description>
     
     <item>
       <title>关于Hive和YARNの读书笔记</title>
-      <link>https://niub.link/posts/helloyarn/</link>
+      <link>https://hao.niub.link/posts/helloyarn/</link>
       <pubDate>Mon, 05 Oct 2020 21:12:17 +0800</pubDate>
       
-      <guid>https://niub.link/posts/helloyarn/</guid>
+      <guid>https://hao.niub.link/posts/helloyarn/</guid>
       <description>一、回顾Hive的架构 1.1 Hive的基本结构 在Hadoop 2.x版本以后，Hive所有运行的任务都是交由YARN来统一管理。下图所示为Hive作业的工作流程：
 客户端提交SQL作业到HiveServer2, HiveServer2会根据用户提交的SQL作业及数据库中现有的元数据信息（实际生产中存放在MySQL中）生成一份可供计算引擎执行的计划。每个执行计划对应若干MapReduce作业，Hive会将所有的MapReduce作业都一一提交到YARN中，由YARN去负责创建MapReduce作业对应的子任务任务，并协调它们的运行。YARN创建的子任务会与HDFS进行交互，获取计算所需的数据，计算完成后将最终的结果写入HDFS或者本地。
 从整个Hive运行作业的过程我们可以知道Hive自身主要包含3个部分：
@@ -198,10 +198,10 @@ Hive的元数据主要分为5个大部分：
     
     <item>
       <title>再来一道SQL题</title>
-      <link>https://niub.link/posts/keep-water-for-hive/</link>
+      <link>https://hao.niub.link/posts/keep-water-for-hive/</link>
       <pubDate>Sun, 04 Oct 2020 21:37:37 +0800</pubDate>
       
-      <guid>https://niub.link/posts/keep-water-for-hive/</guid>
+      <guid>https://hao.niub.link/posts/keep-water-for-hive/</guid>
       <description>一、求每一年最高气温的那一天以及温度 1.1 数据准备 2014010114 2014010216 2014010317 2014010410 2014010506 2012010609 2012010732 2012010812 2012010919 2012011023 2001010116 2001010212 2001010310 2001010411 2001010529 2013010619 2013010722 2013010812 2013010929 2013011023 2008010105 2008010216 2008010337 2008010414 2008010516 2007010619 2007010712 2007010812 2007010999 2007011023 2010010114 2010010216 2010010317 2010010410 2010010506 2015010649 2015010722 2015010812 2015010999 2015011023 数据的含义是：2010012325表示在2010年01月23日的气温为25度。
 建表、导入数据：
 create table tempertrue(data string); load data local inpath &amp;#34;/data/soft/hive-3.2.1/mydata/tempertrue.txt&amp;#34; into table tempertrue; ※ 1.2 求每一年最高气温的那一天以及温度 首先，先创建一个临时视图，把data分割日期和温度两个字段。
@@ -210,10 +210,10 @@ create view temp as select substr(data, 1, 8) as ttime, substr(data, 9) as tep f
     
     <item>
       <title>请为Hive开扇窗</title>
-      <link>https://niub.link/posts/hive-window-func/</link>
+      <link>https://hao.niub.link/posts/hive-window-func/</link>
       <pubDate>Sat, 03 Oct 2020 21:01:25 +0800</pubDate>
       
-      <guid>https://niub.link/posts/hive-window-func/</guid>
+      <guid>https://hao.niub.link/posts/hive-window-func/</guid>
       <description>一、Hive中的开窗函数 1.1 关于开窗函数 什么是开窗函数？
 回答这个问题之前先要了解一下什么是聚合函数。聚合函数是SQL的基本函数，其功能是对一组值执行计算，并返回单个值。再说一遍，聚合函数是SQL的基本函数，其功能是对一组值执行计算，并返回单个值。
 常见的聚合函数有：sum()，count()，max()，min()， avg()等，这些聚合函数通常与group by 子句连用，除了count以外，聚合函数忽略空值；
@@ -225,10 +225,10 @@ create view temp as select substr(data, 1, 8) as ttime, substr(data, 9) as tep f
     
     <item>
       <title>浅谈SQL语句的执行顺序</title>
-      <link>https://niub.link/posts/sql-execution-sequence/</link>
+      <link>https://hao.niub.link/posts/sql-execution-sequence/</link>
       <pubDate>Fri, 02 Oct 2020 19:10:59 +0800</pubDate>
       
-      <guid>https://niub.link/posts/sql-execution-sequence/</guid>
+      <guid>https://hao.niub.link/posts/sql-execution-sequence/</guid>
       <description>浅谈SQL语句的执行顺序 一、SQL语句执行顺序解析 SQL语句和编程语言的语句有很大的不同，有一点原因在于SQL并不一定是按照你写的SQL语句顺序执行的。因此在写SQL语句的时候很容易出现问题，最主要的问题还是记不住SQL命令，死记硬背效果好像也不是很好。
 需要知道的是，在SQL语句执行的过程中，都会产生一个虚拟表，用来保存SQL语句的执行结果。这些虚拟表对用户来说是透明的，只有最后一步生成的虚拟表才会返回给用户。如果没有再查询中指定某一子句，则将跳过相应的步骤。下面先给出SQL语句的执行顺序，并加以简单的解释。
 7) select 8) distinct &amp;lt;select_list&amp;gt; 1) from &amp;lt;left_table&amp;gt; 3) &amp;lt;join_type&amp;gt; join &amp;lt;right_table&amp;gt; 2) on &amp;lt;join_condition&amp;gt; 4) where &amp;lt;where_condition&amp;gt; 5) group by &amp;lt;group_by_list&amp;gt; 6) having &amp;lt;having_condition&amp;gt; 9) order by &amp;lt;order_by_list&amp;gt; 10) limit &amp;lt;limit_number&amp;gt; 1）from：对FROM子句中的左表&amp;lt;left_table&amp;gt;和右表&amp;lt;right_table&amp;gt;执行笛卡儿积（Cartesian product），产生虚拟表VT1。
@@ -249,10 +249,10 @@ LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留�
     
     <item>
       <title>Hive认识我的第一天</title>
-      <link>https://niub.link/posts/hive-meeting/</link>
+      <link>https://hao.niub.link/posts/hive-meeting/</link>
       <pubDate>Thu, 01 Oct 2020 17:08:58 +0800</pubDate>
       
-      <guid>https://niub.link/posts/hive-meeting/</guid>
+      <guid>https://hao.niub.link/posts/hive-meeting/</guid>
       <description>一、Hive简介 1.1 什么是Hive Hive官网给出的定义是：“The Apache Hive ™ data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.”
 我粗糙的理解是，Hive是一个类似Hadoop（集群）的客户端，所谓客户端在手天下我有。就好比你拿到了电视的遥控器，想怎么操作电视就怎么操作电视，比如换台。实际上Hive使用的是类似SQL的语句去操作（离线数据分析、数据管理&amp;hellip;）HDFS上的数据，本质是将SQL语句转化成MapReduce作业。
 1.2 为什么要使用Hive Hive的本质是将SQL转化成MapReduce作业，那么直接使用MapReduce不就好了，何必转一个弯呢？因为Hive更方便啊，它是遥控器！MapReduce编程模型还是有一定门槛的，代码量多而且只有map和reduce过程，实现复杂的计算逻辑则难度相当之大。
@@ -271,10 +271,10 @@ LEFT OUTER JOIN把左表记为保留表，RIGHT OUTER JOIN把右表记为保留�
     
     <item>
       <title>时隔五个月的少年又回来了</title>
-      <link>https://niub.link/posts/%E6%97%B6%E9%9A%94%E4%BA%94%E4%B8%AA%E6%9C%88%E7%9A%84%E5%B0%91%E5%B9%B4%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/</link>
+      <link>https://hao.niub.link/posts/%E6%97%B6%E9%9A%94%E4%BA%94%E4%B8%AA%E6%9C%88%E7%9A%84%E5%B0%91%E5%B9%B4%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/</link>
       <pubDate>Tue, 29 Sep 2020 23:44:55 +0800</pubDate>
       
-      <guid>https://niub.link/posts/%E6%97%B6%E9%9A%94%E4%BA%94%E4%B8%AA%E6%9C%88%E7%9A%84%E5%B0%91%E5%B9%B4%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/</guid>
+      <guid>https://hao.niub.link/posts/%E6%97%B6%E9%9A%94%E4%BA%94%E4%B8%AA%E6%9C%88%E7%9A%84%E5%B0%91%E5%B9%B4%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/</guid>
       <description>一眨眼就是五个月，整整五个月，你知道我这五个月都是怎么过来的吗？
 迷茫、踌躇、失意、自闭、堕落、颓废、自暴自弃&amp;hellip;
 这注定是一段挥之不去的记忆。

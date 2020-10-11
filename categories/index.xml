@@ -2,10 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on 布袋和尚</title>
-    <link>https://niub.link/categories/</link>
+    <link>https://hao.niub.link/categories/</link>
     <description>Recent content in Categories on 布袋和尚</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright><atom:link href="https://niub.link/categories/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright><atom:link href="https://hao.niub.link/categories/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

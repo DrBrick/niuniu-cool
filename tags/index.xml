@@ -2,63 +2,63 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on 布袋和尚</title>
-    <link>https://niub.link/tags/</link>
+    <link>https://hao.niub.link/tags/</link>
     <description>Recent content in Tags on 布袋和尚</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Sun, 11 Oct 2020 21:30:13 +0800</lastBuildDate><atom:link href="https://niub.link/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 11 Oct 2020 21:30:13 +0800</lastBuildDate><atom:link href="https://hao.niub.link/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Kafka</title>
-      <link>https://niub.link/tags/kafka/</link>
+      <link>https://hao.niub.link/tags/kafka/</link>
       <pubDate>Sun, 11 Oct 2020 21:30:13 +0800</pubDate>
       
-      <guid>https://niub.link/tags/kafka/</guid>
+      <guid>https://hao.niub.link/tags/kafka/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Spark</title>
-      <link>https://niub.link/tags/spark/</link>
+      <link>https://hao.niub.link/tags/spark/</link>
       <pubDate>Fri, 09 Oct 2020 19:41:25 +0800</pubDate>
       
-      <guid>https://niub.link/tags/spark/</guid>
+      <guid>https://hao.niub.link/tags/spark/</guid>
       <description></description>
     </item>
     
     <item>
       <title>HBase</title>
-      <link>https://niub.link/tags/hbase/</link>
+      <link>https://hao.niub.link/tags/hbase/</link>
       <pubDate>Wed, 07 Oct 2020 21:39:44 +0800</pubDate>
       
-      <guid>https://niub.link/tags/hbase/</guid>
+      <guid>https://hao.niub.link/tags/hbase/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Hadoop</title>
-      <link>https://niub.link/tags/hadoop/</link>
+      <link>https://hao.niub.link/tags/hadoop/</link>
       <pubDate>Mon, 05 Oct 2020 21:12:17 +0800</pubDate>
       
-      <guid>https://niub.link/tags/hadoop/</guid>
+      <guid>https://hao.niub.link/tags/hadoop/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Hive</title>
-      <link>https://niub.link/tags/hive/</link>
+      <link>https://hao.niub.link/tags/hive/</link>
       <pubDate>Mon, 05 Oct 2020 21:12:17 +0800</pubDate>
       
-      <guid>https://niub.link/tags/hive/</guid>
+      <guid>https://hao.niub.link/tags/hive/</guid>
       <description></description>
     </item>
     
     <item>
       <title>SQL</title>
-      <link>https://niub.link/tags/sql/</link>
+      <link>https://hao.niub.link/tags/sql/</link>
       <pubDate>Fri, 02 Oct 2020 19:10:59 +0800</pubDate>
       
-      <guid>https://niub.link/tags/sql/</guid>
+      <guid>https://hao.niub.link/tags/sql/</guid>
       <description></description>
     </item>
     
