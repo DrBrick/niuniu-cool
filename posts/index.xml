@@ -7,7 +7,33 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>牛牛ฅ^•ﻌ•^ฅ</copyright>
-    <lastBuildDate>Sat, 10 Oct 2020 20:44:07 +0800</lastBuildDate><atom:link href="https://niub.link/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 11 Oct 2020 21:30:13 +0800</lastBuildDate><atom:link href="https://niub.link/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kafka几个重要的图</title>
+      <link>https://niub.link/posts/kafka-02/</link>
+      <pubDate>Sun, 11 Oct 2020 21:30:13 +0800</pubDate>
+      
+      <guid>https://niub.link/posts/kafka-02/</guid>
+      <description>一、Kafka中几个重要的架构示意图 1.1 Kafka架构体系图 由图可知，Kafka通过Zookeeper管理集群的元数据，发布订阅模式使用的是send/pull的模式。
+1.2 Kafka消息写入模式图 可以看到Kafka写入消息的时在每个分区是有序的。
+1.3 Kafka分区多副本架构图  ISR副本同步队列，由一个Leader和多个Follower分区副本组成。leader副本负责同生产者、消费者打交道（即生产消息通过它，消费消息也是通过它），follower副本用于同步leader副本分区的数据，且follower分区副本都是分布在Kafka集群上的。
+“分区中的所有副本统称为AR（Assigned Replicas）。所有与leader副本保持一定程度同步的副本（包括leader副本在内）组成ISR（In-SyncReplicas），ISR集合是AR集合中的一个子集。消息会先发送到leader副本，然后follower副本才能从leader副本中拉取消息进行同步，同步期间内follower副本相对于leader副本而言会有一定程度的滞后。
+前面所说的“一定程度的同步”是指可忍受的滞后范围，这个范围可以通过参数进行配置。与leader副本同步滞后过多的副本（不包括leader副本）组成OSR（Out-of-Sync Replicas），由此可见，AR=ISR+OSR。在正常情况下，所有的follower 副本都应该与 leader 副本保持一定程度的同步，即 AR=ISR，OSR集合为空。”
+ 1.4 偏移量说明示意图  读懂此图需要了解下面几个概念：
+ HW：High Watermark的缩写，俗称高水位，它标识了一个特定的消息偏移量（offset），消费者只能拉取到这个offset之前的消息； LEO：是Log End Offset的缩写，它标识当前日志文件中下一条待写入消息的offset  上图中offset为6的消息对消费者而言是不可见的。
+LEO的大小相当于当前日志分区中最后一条消息的offset值加1。分区ISR集合中的每个副本都会维护自身的LEO，而ISR集合中最小的LEO即为分区的HW，对消费者而言只能消费HW之前的消息。
+ 二、Kafka基本使用 2.1 创建主题 创建一个名为topic-demo的主题，且副本因子为3，分区数为4：
+bin/kafka-topics.sh --zookeeper hadoop200m:2181 --create --topic topic-demo --replication-factor 3 --partitions 4  各个参数说明：
+&amp;ndash;zookeeper 指定了Kafka所连接的Zookeeper服务地址
+&amp;ndash;create 创建主题的动作指令
+&amp;ndash;topic 指定了创建的主题名称
+&amp;ndash;replication-factor 指定了副本因子
+&amp;ndash;partitions 指定分区个数
+&amp;ndash;describe 展示主题的更多具体信息
+ 2.3 查看主题详细信息 查看topic-demo的主题详细信息：
+bin/kafka-topics.sh --zookeeper hadoop200m:2181 --describe --topic topic-demo 2.</description>
+    </item>
+    
     <item>
       <title>Kafka副本机制和偏移量</title>
       <link>https://niub.link/posts/kafka-01/</link>
